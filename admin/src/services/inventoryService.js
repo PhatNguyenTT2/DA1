@@ -133,10 +133,14 @@ const inventoryService = {
    */
   adjustStock: async (productId, data) => {
     try {
+      console.log('[inventoryService] Adjusting stock for product:', productId);
+      console.log('[inventoryService] Adjustment data:', data);
       const response = await api.post(`/inventory/${productId}/adjust`, data)
+      console.log('[inventoryService] Adjustment response:', response.data);
       return response.data
     } catch (error) {
-      console.error('Error adjusting stock:', error)
+      console.error('[inventoryService] Error adjusting stock:', error)
+      console.error('[inventoryService] Error response:', error.response?.data)
       throw error.response?.data || error
     }
   },

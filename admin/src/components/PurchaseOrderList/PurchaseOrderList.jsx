@@ -152,6 +152,13 @@ const PurchaseOrderList = ({
 
     const oldStatus = po.status;
 
+    // Prevent changing status if already received or cancelled
+    if (oldStatus === 'received' || oldStatus === 'cancelled') {
+      alert(`Cannot change status. Purchase Order is already ${oldStatus}.`);
+      setActiveDropdown(null);
+      return;
+    }
+
     // Confirm critical status changes
     if (newStatus === 'approved' || newStatus === 'received') {
       const action = newStatus === 'approved' ? 'approve' : 'mark as received';
@@ -167,18 +174,31 @@ const PurchaseOrderList = ({
       }
     }
 
+    // Confirm cancellation of approved PO (inventory will be reversed)
+    if (newStatus === 'cancelled' && oldStatus === 'approved') {
+      const confirmed = window.confirm(
+        `Are you sure you want to cancel Purchase Order ${po.poNumber}?\n\n⚠️ Warning: This PO was already APPROVED.\nInventory stock that was added will be REVERSED (removed).\n\nThis action cannot be undone.`
+      );
+
+      if (!confirmed) {
+        setActiveDropdown(null);
+        return;
+      }
+    }
+
     setUpdatingStatus(true);
     setActiveDropdown(null);
 
     try {
-      // Update PO status
-      await purchaseOrderService.updatePurchaseOrder(po.id, { status: newStatus });
+      // Update PO status using the correct endpoint
+      const result = await purchaseOrderService.updatePurchaseOrderStatus(po.id, newStatus);
+      console.log('Status update result:', result);
 
-      // If status changed to approved or received, update inventory
+      // If status changed to approved or received, update inventory (stock in)
       if ((newStatus === 'approved' || newStatus === 'received') &&
         (oldStatus !== 'approved' && oldStatus !== 'received')) {
 
-        console.log(`Status changed to ${newStatus}, updating inventory...`);
+        console.log(`Status changed to ${newStatus}, stocking in inventory...`);
 
         // Stock in all items
         if (po.items && po.items.length > 0) {
@@ -205,7 +225,42 @@ const PurchaseOrderList = ({
         }
       }
 
-      alert(`Purchase Order status updated to ${newStatus}`);
+      // If status changed from approved to cancelled, reverse inventory (adjustment decrease)
+      // This is similar to refund logic - restore inventory to previous state
+      if (newStatus === 'cancelled' && oldStatus === 'approved') {
+        console.log('Status changed from approved to cancelled, reversing inventory (adjustment decrease)...');
+
+        // Reverse all items using adjustment (decrease) - same as refund logic
+        if (po.items && po.items.length > 0) {
+          for (const item of po.items) {
+            const productId = item.product?.id || item.product?._id || item.product;
+            const quantity = item.quantity || 0;
+
+            if (productId && quantity > 0) {
+              try {
+                // Use adjustStock with 'decrease' to reverse the stock-in from approval
+                await inventoryService.adjustStock(productId, {
+                  type: 'adjustment',
+                  quantity: quantity,
+                  adjustmentType: 'decrease',
+                  referenceType: 'stock_adjustment', // Valid enum value
+                  referenceId: po.poNumber,
+                  notes: `Reverse stock-in due to PO cancellation: ${po.poNumber} (was previously approved)`
+                });
+                console.log(`Adjusted stock down ${quantity} units of product ${productId} (reversed)`);
+              } catch (adjustError) {
+                console.error(`Error adjusting stock for product ${productId}:`, adjustError);
+                console.error('Full error details:', JSON.stringify(adjustError, null, 2));
+                // Continue with other items even if one fails
+              }
+            }
+          }
+          alert(`Purchase Order cancelled. Inventory has been reversed to previous state.`);
+        }
+      } else {
+        alert(`Purchase Order status updated to ${newStatus}`);
+      }
+
       if (onRefresh) {
         onRefresh();
       }
@@ -389,18 +444,26 @@ const PurchaseOrderList = ({
 
                   {/* PO Status - Dropdown */}
                   <div className="w-[100px] px-3 flex items-center flex-shrink-0">
-                    <button
-                      onClick={(e) => toggleDropdown(`status-${po.id}`, e)}
-                      disabled={updatingStatus}
-                      className={`${getStatusStyles(po.status)} px-2 py-1 rounded inline-flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
-                        {po.status ? po.status.replace('_', ' ') : 'pending'}
-                      </span>
-                      <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 1L4 4L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
+                    {(po.status === 'pending' || po.status === 'approved') ? (
+                      <button
+                        onClick={(e) => toggleDropdown(`status-${po.id}`, e)}
+                        disabled={updatingStatus}
+                        className={`${getStatusStyles(po.status)} px-2 py-1 rounded inline-flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
+                          {po.status ? po.status.replace('_', ' ') : 'pending'}
+                        </span>
+                        <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 1L4 4L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <div className={`${getStatusStyles(po.status)} px-2 py-1 rounded inline-flex items-center`}>
+                        <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
+                          {po.status ? po.status.replace('_', ' ') : 'pending'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Created By */}

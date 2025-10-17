@@ -292,23 +292,6 @@ export const AddSupplierModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
-          {/* Total Purchase Amount (Read-only) */}
-          <div>
-            <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">
-              Total Purchase Amount
-            </label>
-            <input
-              type="text"
-              value="$0"
-              readOnly
-              disabled
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] bg-gray-50 text-gray-500 cursor-not-allowed"
-            />
-            <p className="text-[11px] text-gray-500 font-['Poppins',sans-serif] mt-1">
-              This field will be automatically calculated from purchase orders
-            </p>
-          </div>
-
           {/* Notes (Optional) */}
           <div>
             <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">

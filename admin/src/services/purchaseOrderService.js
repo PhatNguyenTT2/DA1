@@ -76,6 +76,29 @@ const purchaseOrderService = {
   },
 
   /**
+   * Update purchase order status
+   * @param {string} id - Purchase Order ID
+   * @param {string} status - New status (pending, approved, received, cancelled)
+   * @param {string} notes - Optional notes
+   * @returns {Promise} Updated purchase order
+   */
+  updatePurchaseOrderStatus: async (id, status, notes = null) => {
+    try {
+      console.log(`[purchaseOrderService] Updating PO ${id} status to ${status}`);
+      const payload = { status };
+      if (notes) {
+        payload.notes = notes;
+      }
+      const response = await api.patch(`/purchase-orders/${id}/status`, payload)
+      console.log('[purchaseOrderService] Status update response:', response.data);
+      return response.data
+    } catch (error) {
+      console.error(`Error updating purchase order ${id} status:`, error)
+      throw error.response?.data || error
+    }
+  },
+
+  /**
    * Approve purchase order
    * @param {string} id - Purchase Order ID
    * @returns {Promise} Approved purchase order

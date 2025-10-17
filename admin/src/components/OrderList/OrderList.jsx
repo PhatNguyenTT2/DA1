@@ -267,17 +267,25 @@ export const OrderList = ({ orders = [], onStatusChange, onSort, sortField, sort
 
                   {/* Order Status Badge with Dropdown */}
                   <div className="w-[160px] px-3 flex items-center flex-shrink-0">
-                    <button
-                      onClick={(e) => toggleDropdown(orderDropdownId, e)}
-                      className={`${getOrderStatusStyles(order.status)} px-2 py-1 rounded inline-flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity`}
-                    >
-                      <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
-                        {order.status}
-                      </span>
-                      <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 1L4 4L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
+                    {order.paymentStatus?.toLowerCase() !== 'failed' ? (
+                      <button
+                        onClick={(e) => toggleDropdown(orderDropdownId, e)}
+                        className={`${getOrderStatusStyles(order.status)} px-2 py-1 rounded inline-flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity`}
+                      >
+                        <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
+                          {order.status}
+                        </span>
+                        <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 1L4 4L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <div className={`${getOrderStatusStyles(order.status)} px-2 py-1 rounded inline-flex items-center`}>
+                        <span className="text-[9px] font-bold font-['Poppins',sans-serif] text-white leading-[10px] uppercase">
+                          {order.status}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Payment Status Badge (Read-only) */}
@@ -414,8 +422,8 @@ export const OrderList = ({ orders = [], onStatusChange, onSort, sortField, sort
                 }}
                 disabled={!['paid', 'failed', 'refunded'].includes(order.paymentStatus.toLowerCase())}
                 className={`w-full px-4 py-2 text-left text-[12px] font-['Poppins',sans-serif] transition-colors flex items-center gap-2 ${!['paid', 'failed', 'refunded'].includes(order.paymentStatus.toLowerCase())
-                    ? 'text-gray-400 cursor-not-allowed opacity-50'
-                    : 'text-gray-700 hover:bg-red-50 hover:text-red-600'
+                  ? 'text-gray-400 cursor-not-allowed opacity-50'
+                  : 'text-gray-700 hover:bg-red-50 hover:text-red-600'
                   }`}
                 title={
                   !['paid', 'failed', 'refunded'].includes(order.paymentStatus.toLowerCase())

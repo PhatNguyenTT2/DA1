@@ -109,7 +109,7 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
     <div className="bg-white rounded-lg shadow-sm">
       {/* Scrollable Container - overflow-x-auto allows horizontal scroll */}
       <div className="overflow-x-auto rounded-lg">
-        <div className="min-w-[1300px]">
+        <div className="min-w-[1180px]">
           {/* Table Header */}
           <div className="flex items-center h-[34px] bg-gray-50 border-b border-gray-200">
             {/* ID Column - Sortable */}
@@ -182,17 +182,6 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
               <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px] flex items-center">
                 Current Debt
                 {getSortIcon('currentDebt')}
-              </p>
-            </div>
-
-            {/* Total Purchase Column - Sortable */}
-            <div
-              className="w-[120px] px-3 flex items-center flex-shrink-0 cursor-pointer hover:bg-gray-100 transition-colors"
-              onClick={() => handleSortClick('totalPurchaseAmount')}
-            >
-              <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px] flex items-center">
-                Total Purchase
-                {getSortIcon('totalPurchaseAmount')}
               </p>
             </div>
 
@@ -270,13 +259,6 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
                   <div className="w-[120px] px-3 flex items-center flex-shrink-0">
                     <p className={`text-[13px] font-normal font-['Poppins',sans-serif] leading-[20px] ${getDebtStatusColor(supplier.currentDebt, supplier.creditLimit)}`}>
                       {formatCurrency(supplier.currentDebt)}
-                    </p>
-                  </div>
-
-                  {/* Total Purchase Amount */}
-                  <div className="w-[120px] px-3 flex items-center flex-shrink-0">
-                    <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529] leading-[20px]">
-                      {formatCurrency(supplier.totalPurchaseAmount || 0)}
                     </p>
                   </div>
 
