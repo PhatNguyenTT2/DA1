@@ -1,4 +1,4 @@
-## UIT Inventory & Purchasing System
+## Inventory & Purchasing System
 
 ### Overview
 This repository contains a full‑stack inventory and purchasing management system:
