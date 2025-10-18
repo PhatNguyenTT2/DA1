@@ -592,6 +592,183 @@ ordersRouter.get('/stats/dashboard', userExtractor, isAdmin, async (request, res
   }
 })
 
+// PUT /api/orders/:id - Update order (Admin only)
+// Only allows updating orders with payment status 'pending'
+ordersRouter.put('/:id', userExtractor, isAdmin, async (request, response) => {
+  try {
+    const orderId = request.params.id
+    const { customer, items, deliveryType, shippingAddress, paymentMethod, customerNote } = request.body
+
+    console.log('=== UPDATE ORDER REQUEST ===')
+    console.log('Order ID:', orderId)
+    console.log('Request body:', JSON.stringify(request.body, null, 2))
+
+    // Find the order
+    const order = await Order.findById(orderId)
+
+    if (!order) {
+      console.error('Order not found:', orderId)
+      return response.status(404).json({
+        error: 'Order not found'
+      })
+    }
+
+    console.log('Current order:', order)
+    console.log('Current payment status:', order.paymentStatus)
+
+    // Validation: Only allow updating orders with payment status 'pending'
+    if (order.paymentStatus.toLowerCase() !== 'pending') {
+      console.error('Invalid payment status for edit:', order.paymentStatus)
+      return response.status(400).json({
+        error: `Cannot edit order with payment status '${order.paymentStatus}'. Only orders with payment status 'Pending' can be edited.`
+      })
+    }
+
+    // Validate required fields
+    if (!customer || !customer.name || !customer.email || !customer.phone) {
+      return response.status(400).json({
+        error: 'Customer name, email, and phone are required'
+      })
+    }
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return response.status(400).json({
+        error: 'At least one item is required'
+      })
+    }
+
+    // Validate items and fetch product details
+    const orderItems = []
+    let subtotal = 0
+
+    for (const item of items) {
+      if (!item.product || !item.quantity || item.quantity <= 0) {
+        return response.status(400).json({
+          error: 'Each item must have a product and positive quantity'
+        })
+      }
+
+      const product = await Product.findById(item.product)
+      if (!product) {
+        return response.status(404).json({
+          error: `Product not found: ${item.product}`
+        })
+      }
+
+      // Check available stock (considering reserved stock from current order)
+      const inventory = await Inventory.findOne({ product: item.product })
+      const currentItemInOrder = order.items.find(i => i.product.toString() === item.product)
+      const currentReserved = currentItemInOrder ? currentItemInOrder.quantity : 0
+      const availableStock = inventory ? (inventory.quantityAvailable + currentReserved) : 0
+
+      if (availableStock < item.quantity) {
+        return response.status(400).json({
+          error: `Insufficient stock for ${product.name}. Available: ${availableStock}, Requested: ${item.quantity}`
+        })
+      }
+
+      const itemPrice = product.price
+      const itemTotal = itemPrice * item.quantity
+
+      orderItems.push({
+        product: product._id,
+        productName: product.name,
+        productImage: product.image,
+        quantity: item.quantity,
+        price: itemPrice,
+        subtotal: itemTotal
+      })
+
+      subtotal += itemTotal
+    }
+
+    // Calculate totals
+    const shippingFee = deliveryType === 'delivery' ? 10 : 0
+    const tax = subtotal * 0.1
+    const total = subtotal + shippingFee + tax
+
+    // Release old reserved stock
+    for (const oldItem of order.items) {
+      const inventory = await Inventory.findOne({ product: oldItem.product })
+      if (inventory && inventory.quantityReserved >= oldItem.quantity) {
+        inventory.quantityReserved -= oldItem.quantity
+        inventory.movements.push({
+          type: 'released',
+          quantity: oldItem.quantity,
+          reason: 'Order updated - old stock released',
+          referenceType: 'order',
+          referenceId: order._id.toString(),
+          performedBy: request.user._id,
+          date: new Date()
+        })
+        await inventory.save()
+      }
+    }
+
+    // Reserve new stock
+    for (const newItem of orderItems) {
+      let inventory = await Inventory.findOne({ product: newItem.product })
+
+      if (!inventory) {
+        inventory = new Inventory({
+          product: newItem.product,
+          quantityOnHand: 0,
+          reorderPoint: 10,
+          reorderQuantity: 50
+        })
+      }
+
+      inventory.quantityReserved += newItem.quantity
+      inventory.movements.push({
+        type: 'reserved',
+        quantity: newItem.quantity,
+        reason: 'Order updated - new stock reserved',
+        referenceType: 'order',
+        referenceId: order._id.toString(),
+        performedBy: request.user._id,
+        date: new Date()
+      })
+      await inventory.save()
+    }
+
+    // Update order
+    order.customer = customer
+    order.items = orderItems
+    order.deliveryType = deliveryType
+    order.shippingAddress = deliveryType === 'delivery' ? shippingAddress : undefined
+    order.paymentMethod = paymentMethod
+    order.customerNote = customerNote
+    order.subtotal = subtotal
+    order.shippingFee = shippingFee
+    order.tax = tax
+    order.total = total
+    order.updatedAt = new Date()
+
+    await order.save()
+
+    // Update payment record
+    await Payment.findOneAndUpdate(
+      { relatedOrderId: order._id },
+      { amount: total, updatedAt: new Date() }
+    )
+
+    console.log('Order updated successfully:', order._id)
+
+    response.status(200).json({
+      success: true,
+      message: 'Order updated successfully',
+      data: order
+    })
+  } catch (error) {
+    console.error('=== ERROR UPDATING ORDER ===')
+    console.error('Error details:', error)
+    console.error('Error stack:', error.stack)
+    response.status(500).json({
+      error: error.message || 'Failed to update order'
+    })
+  }
+})
+
 // DELETE /api/orders/:id - Delete an order (Admin only)
 // Only allows deletion of orders with specific payment statuses
 ordersRouter.delete('/:id', userExtractor, isAdmin, async (request, response) => {

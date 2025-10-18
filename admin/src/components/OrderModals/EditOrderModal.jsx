@@ -293,21 +293,36 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
         customer: formData.customer,
         deliveryType: formData.deliveryType,
         shippingAddress: formData.deliveryType === 'delivery' ? formData.shippingAddress : undefined,
-        items: items.map(item => ({
-          product: item.product,
-          quantity: parseInt(item.quantity)
-        })),
+        items: items.map(item => {
+          const product = products.find(p => p.id === item.product);
+          const quantity = parseInt(item.quantity);
+          return {
+            product: item.product,
+            productName: product?.name,
+            productImage: product?.imageUrl,
+            price: product?.price,
+            quantity: quantity,
+            subtotal: product ? product.price * quantity : 0
+          };
+        }),
         paymentMethod: formData.paymentMethod,
         customerNote: formData.customerNote || undefined
       };
 
+      console.log('Updating order with data:', orderData);
       const response = await orderService.updateOrder(order.id, orderData);
+      console.log('Update order response:', response);
 
-      if (onSuccess) {
-        onSuccess(response);
+      if (response.success) {
+        if (onSuccess) {
+          onSuccess(response.data);
+        }
+        onClose();
+      } else {
+        setError(response.error || 'Failed to update order');
       }
-      onClose();
     } catch (err) {
+      console.error('Update order error:', err);
       setError(err.error || err.message || 'Failed to update order. Please try again.');
     } finally {
       setLoading(false);

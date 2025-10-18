@@ -260,10 +260,18 @@ export const AddOrderModal = ({ isOpen, onClose, onSuccess }) => {
         customer: formData.customer,
         deliveryType: formData.deliveryType,
         shippingAddress: formData.deliveryType === 'delivery' ? formData.shippingAddress : undefined,
-        items: items.map(item => ({
-          product: item.product,
-          quantity: parseInt(item.quantity)
-        })),
+        items: items.map(item => {
+          const product = products.find(p => p.id === item.product);
+          const quantity = parseInt(item.quantity);
+          return {
+            product: item.product,
+            productName: product?.name,
+            productImage: product?.imageUrl,
+            price: product?.price,
+            quantity: quantity,
+            subtotal: product ? product.price * quantity : 0
+          };
+        }),
         paymentMethod: formData.paymentMethod,
         customerNote: formData.customerNote || undefined
       };
