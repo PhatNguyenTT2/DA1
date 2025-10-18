@@ -572,6 +572,44 @@ paymentsRouter.put('/:id/status', userExtractor, async (request, response) => {
   }
 })
 
+// PATCH /api/payments/:id/method - Update payment method
+paymentsRouter.patch('/:id/method', userExtractor, async (request, response) => {
+  try {
+    const { paymentMethod } = request.body
+
+    // Validate payment method
+    const validMethods = ['cash', 'card', 'bank_transfer', 'e_wallet', 'check', 'credit']
+    if (!paymentMethod || !validMethods.includes(paymentMethod)) {
+      return response.status(400).json({
+        error: `Invalid payment method. Must be one of: ${validMethods.join(', ')}`
+      })
+    }
+
+    const payment = await Payment.findById(request.params.id)
+
+    if (!payment) {
+      return response.status(404).json({ error: 'Payment not found' })
+    }
+
+    // Update payment method
+    payment.paymentMethod = paymentMethod
+    await payment.save()
+
+    // Populate and return
+    await payment.populate('customer', 'customerCode fullName')
+    await payment.populate('supplier', 'supplierCode companyName')
+    await payment.populate('receivedBy', 'username')
+
+    response.json({
+      message: `Payment method updated to ${paymentMethod}`,
+      payment
+    })
+  } catch (error) {
+    console.error('Error updating payment method:', error)
+    response.status(400).json({ error: error.message })
+  }
+})
+
 // DELETE /api/payments/:id - Delete payment (only pending/failed)
 paymentsRouter.delete('/:id', userExtractor, async (request, response) => {
   try {

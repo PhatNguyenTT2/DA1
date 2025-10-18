@@ -271,7 +271,57 @@ purchaseOrdersRouter.patch('/:id', userExtractor, async (request, response) => {
     if (discount !== undefined) purchaseOrder.discount = discount
     if (notes !== undefined) purchaseOrder.notes = notes
 
+    // Store old total before saving
+    const oldTotal = purchaseOrder.total
+
     const updatedPurchaseOrder = await purchaseOrder.save()
+
+    // Calculate the difference in total
+    const totalDifference = updatedPurchaseOrder.total - oldTotal
+
+    // Update supplier's current debt if total changed
+    if (totalDifference !== 0) {
+      try {
+        const supplier = await Supplier.findById(updatedPurchaseOrder.supplier)
+        if (supplier) {
+          if (totalDifference > 0) {
+            // Total increased - add to debt
+            await supplier.addDebt(totalDifference)
+            console.log(`Supplier debt increased by $${totalDifference} for PO ${updatedPurchaseOrder.poNumber}`)
+          } else {
+            // Total decreased - reduce debt
+            const debtReduction = Math.abs(totalDifference)
+            // Use payDebt but handle the case where it might exceed current debt
+            if (debtReduction <= supplier.currentDebt) {
+              await supplier.payDebt(debtReduction)
+              console.log(`Supplier debt decreased by $${debtReduction} for PO ${updatedPurchaseOrder.poNumber}`)
+            } else {
+              // If reduction exceeds current debt, just set to 0
+              supplier.currentDebt = 0
+              await supplier.save()
+              console.log(`Supplier debt reset to $0 for PO ${updatedPurchaseOrder.poNumber}`)
+            }
+          }
+        }
+      } catch (debtError) {
+        console.error('Error updating supplier debt:', debtError)
+        // Continue even if debt update fails
+      }
+    }
+
+    // Update payment record with new total
+    try {
+      const payment = await Payment.findOne({ relatedOrderId: updatedPurchaseOrder._id })
+      if (payment && payment.status === 'pending') {
+        // Only update if payment is still pending (not confirmed/completed)
+        payment.amount = updatedPurchaseOrder.total
+        await payment.save()
+        console.log(`Payment updated for PO ${updatedPurchaseOrder.poNumber}: $${updatedPurchaseOrder.total}`)
+      }
+    } catch (paymentError) {
+      console.error('Error updating payment for purchase order:', paymentError)
+      // Continue even if payment update fails
+    }
 
     await updatedPurchaseOrder.populate('supplier', 'supplierCode companyName')
     await updatedPurchaseOrder.populate('items.product', 'name sku')
@@ -334,7 +384,57 @@ purchaseOrdersRouter.put('/:id', userExtractor, async (request, response) => {
     if (discount !== undefined) purchaseOrder.discount = discount
     if (notes !== undefined) purchaseOrder.notes = notes
 
+    // Store old total before saving
+    const oldTotal = purchaseOrder.total
+
     const updatedPurchaseOrder = await purchaseOrder.save()
+
+    // Calculate the difference in total
+    const totalDifference = updatedPurchaseOrder.total - oldTotal
+
+    // Update supplier's current debt if total changed
+    if (totalDifference !== 0) {
+      try {
+        const supplier = await Supplier.findById(updatedPurchaseOrder.supplier)
+        if (supplier) {
+          if (totalDifference > 0) {
+            // Total increased - add to debt
+            await supplier.addDebt(totalDifference)
+            console.log(`Supplier debt increased by $${totalDifference} for PO ${updatedPurchaseOrder.poNumber}`)
+          } else {
+            // Total decreased - reduce debt
+            const debtReduction = Math.abs(totalDifference)
+            // Use payDebt but handle the case where it might exceed current debt
+            if (debtReduction <= supplier.currentDebt) {
+              await supplier.payDebt(debtReduction)
+              console.log(`Supplier debt decreased by $${debtReduction} for PO ${updatedPurchaseOrder.poNumber}`)
+            } else {
+              // If reduction exceeds current debt, just set to 0
+              supplier.currentDebt = 0
+              await supplier.save()
+              console.log(`Supplier debt reset to $0 for PO ${updatedPurchaseOrder.poNumber}`)
+            }
+          }
+        }
+      } catch (debtError) {
+        console.error('Error updating supplier debt:', debtError)
+        // Continue even if debt update fails
+      }
+    }
+
+    // Update payment record with new total
+    try {
+      const payment = await Payment.findOne({ relatedOrderId: updatedPurchaseOrder._id })
+      if (payment && payment.status === 'pending') {
+        // Only update if payment is still pending (not confirmed/completed)
+        payment.amount = updatedPurchaseOrder.total
+        await payment.save()
+        console.log(`Payment updated for PO ${updatedPurchaseOrder.poNumber}: $${updatedPurchaseOrder.total}`)
+      }
+    } catch (paymentError) {
+      console.error('Error updating payment for purchase order:', paymentError)
+      // Continue even if payment update fails
+    }
 
     await updatedPurchaseOrder.populate('supplier', 'supplierCode companyName')
     await updatedPurchaseOrder.populate('items.product', 'name sku')
@@ -566,10 +666,10 @@ purchaseOrdersRouter.delete('/:id', userExtractor, async (request, response) => 
       return response.status(404).json({ error: 'Purchase order not found' })
     }
 
-    // Only paid orders can be deleted
-    if (purchaseOrder.paymentStatus !== 'paid') {
+    // Only cancelled or received orders can be deleted
+    if (purchaseOrder.status !== 'cancelled' && purchaseOrder.status !== 'received') {
       return response.status(400).json({
-        error: 'Only paid purchase orders can be deleted.'
+        error: 'Only cancelled or received purchase orders can be deleted.'
       })
     }
 

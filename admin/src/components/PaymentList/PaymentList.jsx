@@ -55,7 +55,7 @@ const PaymentList = ({
       const buttonRect = event.currentTarget.getBoundingClientRect();
       let leftPosition;
 
-      if (dropdownId.startsWith('status-') || dropdownId.startsWith('type-')) {
+      if (dropdownId.startsWith('status-') || dropdownId.startsWith('type-') || dropdownId.startsWith('method-')) {
         leftPosition = buttonRect.left;
       } else {
         leftPosition = buttonRect.right - 160;
@@ -129,13 +129,68 @@ const PaymentList = ({
   // Format payment method display
   const formatPaymentMethod = (method) => {
     if (!method) return 'N/A';
-    return method.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    // Replace all underscores with spaces and capitalize each word
+    return method.split('_').map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
+  // Payment method options
+  const paymentMethodOptions = [
+    { value: 'cash', label: 'Cash' },
+    { value: 'card', label: 'Card' },
+    { value: 'bank_transfer', label: 'Bank Transfer' },
+    { value: 'e_wallet', label: 'E-Wallet' },
+    { value: 'check', label: 'Check' },
+    { value: 'credit', label: 'Credit' }
+  ];
+
+  // Handle payment method change
+  const handlePaymentMethodChange = async (payment, newMethod) => {
+    if (payment.paymentMethod === newMethod) {
+      setActiveDropdown(null);
+      return;
+    }
+
+    try {
+      console.log('Updating payment method:', payment.id, newMethod);
+
+      // Import paymentService dynamically
+      const { default: paymentService } = await import('../../services/paymentService');
+
+      await paymentService.updatePaymentMethod(payment.id, newMethod);
+
+      alert(`Payment method updated to ${newMethod.split('_').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ')} successfully`);
+
+      setActiveDropdown(null);
+
+      // Trigger refresh if callback provided
+      if (onStatusChange) {
+        window.location.reload(); // Simple refresh for now
+      }
+    } catch (error) {
+      console.error('Error updating payment method:', error);
+      alert(error.error || error.message || 'Failed to update payment method');
+    }
   };
 
   // Action handlers
-  const handleView = (payment) => {
-    console.log('View payment:', payment);
-    // TODO: Open view modal
+  const handleDelete = (payment) => {
+    if (payment.status === 'pending') {
+      alert('Pending payments cannot be deleted.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete payment ${payment.paymentNumber}?\n\nThis action cannot be undone.`
+    );
+
+    if (confirmed) {
+      console.log('Delete payment:', payment);
+      // TODO: Call API to delete payment
+    }
   };
 
   const handleEdit = (payment) => {
@@ -144,6 +199,11 @@ const PaymentList = ({
   };
 
   const handleRefund = (payment) => {
+    if (payment.status !== 'completed') {
+      alert('Only completed payments can be refunded.');
+      return;
+    }
+
     console.log('Refund payment:', payment);
     setRefundModal(payment);
     setRefundAmount(payment.amount.toString());
@@ -218,7 +278,7 @@ const PaymentList = ({
             </div>
 
             {/* Payment Method Column */}
-            <div className="w-[150px] px-3 flex items-center flex-shrink-0">
+            <div className="w-[160px] px-3 flex items-center flex-shrink-0">
               <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px]">
                 METHOD
               </p>
@@ -296,11 +356,19 @@ const PaymentList = ({
                     </p>
                   </div>
 
-                  {/* Payment Method */}
-                  <div className="w-[150px] px-3 flex items-center flex-shrink-0">
-                    <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529] leading-[20px]">
-                      {formatPaymentMethod(payment.paymentMethod)}
-                    </p>
+                  {/* Payment Method - Dropdown (Always editable) */}
+                  <div className="w-[160px] px-3 flex items-center flex-shrink-0">
+                    <button
+                      onClick={(e) => toggleDropdown(`method-${payment.id}`, e)}
+                      className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded transition-colors inline-flex items-center gap-1 text-left w-full"
+                    >
+                      <span className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529] leading-[20px] flex-1 truncate">
+                        {formatPaymentMethod(payment.paymentMethod)}
+                      </span>
+                      <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                        <path d="M1 1L4 4L7 1" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
                   </div>
 
                   {/* Date */}
@@ -374,12 +442,14 @@ const PaymentList = ({
       {activeDropdown && (() => {
         const payment = payments.find(p =>
           activeDropdown === `status-${p.id}` ||
+          activeDropdown === `method-${p.id}` ||
           activeDropdown === `action-${p.id}`
         );
 
         if (!payment) return null;
 
         const isStatus = activeDropdown === `status-${payment.id}`;
+        const isMethod = activeDropdown === `method-${payment.id}`;
         const isAction = activeDropdown === `action-${payment.id}`;
 
         // Status Dropdown
@@ -397,12 +467,52 @@ const PaymentList = ({
                 <button
                   key={option.value}
                   onClick={() => handleStatusChange(payment.id, option.value)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${payment.status === option.value ? 'bg-gray-50' : ''
+                    }`}
                 >
                   <span className={`${option.color} w-2 h-2 rounded-full`}></span>
-                  <span className="text-[12px] font-['Poppins',sans-serif] text-[#212529]">
+                  <span className={`text-[12px] font-['Poppins',sans-serif] ${payment.status === option.value ? 'text-emerald-600 font-semibold' : 'text-[#212529]'
+                    }`}>
                     {option.label}
                   </span>
+                  {payment.status === option.value && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-auto">
+                      <path d="M10 3L4.5 8.5L2 6" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          );
+        }
+
+        // Payment Method Dropdown
+        if (isMethod) {
+          return (
+            <div
+              ref={dropdownRef}
+              className="fixed min-w-[160px] bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999]"
+              style={{
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`
+              }}
+            >
+              {paymentMethodOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handlePaymentMethodChange(payment, option.value)}
+                  className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${payment.paymentMethod === option.value ? 'bg-gray-50' : ''
+                    }`}
+                >
+                  <span className={`text-[12px] font-['Poppins',sans-serif] ${payment.paymentMethod === option.value ? 'text-emerald-600 font-semibold' : 'text-[#212529]'
+                    }`}>
+                    {option.label}
+                  </span>
+                  {payment.paymentMethod === option.value && (
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-auto">
+                      <path d="M10 3L4.5 8.5L2 6" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </button>
               ))}
             </div>
@@ -420,53 +530,47 @@ const PaymentList = ({
                 left: `${dropdownPosition.left}px`
               }}
             >
+              {/* Process Refund - Always show, but disabled for non-completed */}
               <button
                 onClick={() => {
-                  handleView(payment);
+                  handleRefund(payment);
                   setActiveDropdown(null);
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2"
+                disabled={payment.status !== 'completed'}
+                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 ${payment.status !== 'completed'
+                  ? 'text-gray-400 cursor-not-allowed opacity-50'
+                  : 'hover:bg-amber-50 hover:text-amber-600 text-gray-700'
+                  }`}
+                title={payment.status !== 'completed' ? 'Only completed payments can be refunded' : 'Process refund'}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 3C4.5 3 2 8 2 8s2.5 5 6 5 6-5 6-5-2.5-5-6-5z" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M8 14A6 6 0 108 2a6 6 0 000 12z" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M10 8H6M8 6v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <span className="text-[12px] font-['Poppins',sans-serif] text-gray-700">View Details</span>
+                <span className="text-[12px] font-['Poppins',sans-serif]">Process Refund</span>
               </button>
 
-              {payment.status === 'pending' && (
-                <button
-                  onClick={() => {
-                    handleEdit(payment);
-                    setActiveDropdown(null);
-                  }}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 2L14 5L5 14H2V11L11 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                  </svg>
-                  <span className="text-[12px] font-['Poppins',sans-serif] text-gray-700">Edit</span>
-                </button>
-              )}
+              {/* Delete - Always show, but disabled for pending */}
+              <div className="border-t border-gray-200 my-1"></div>
 
-              {payment.status === 'completed' && (
-                <>
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <button
-                    onClick={() => {
-                      handleRefund(payment);
-                      setActiveDropdown(null);
-                    }}
-                    className="w-full px-3 py-2 text-left hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 14A6 6 0 108 2a6 6 0 000 12z" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M10 8H6M8 6v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                    </svg>
-                    <span className="text-[12px] font-['Poppins',sans-serif]">Process Refund</span>
-                  </button>
-                </>
-              )}
+              <button
+                onClick={() => {
+                  handleDelete(payment);
+                  setActiveDropdown(null);
+                }}
+                disabled={payment.status === 'pending'}
+                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 ${payment.status === 'pending'
+                  ? 'text-gray-400 cursor-not-allowed opacity-50'
+                  : 'hover:bg-red-50 hover:text-red-600 text-gray-700'
+                  }`}
+                title={payment.status === 'pending' ? 'Pending payments cannot be deleted' : 'Delete payment'}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 4H3.33333H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M5.33301 4.00004V2.66671C5.33301 2.31309 5.47348 1.97395 5.72353 1.7239C5.97358 1.47385 6.31272 1.33337 6.66634 1.33337H9.33301C9.68663 1.33337 10.0258 1.47385 10.2758 1.7239C10.5259 1.97395 10.6663 2.31309 10.6663 2.66671V4.00004M12.6663 4.00004V13.3334C12.6663 13.687 12.5259 14.0261 12.2758 14.2762C12.0258 14.5262 11.6866 14.6667 11.333 14.6667H4.66634C4.31272 14.6667 3.97358 14.5262 3.72353 14.2762C3.47348 14.0261 3.33301 13.687 3.33301 13.3334V4.00004H12.6663Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="text-[12px] font-['Poppins',sans-serif]">Delete</span>
+              </button>
             </div>
           );
         }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { EditPurchaseOrderModal } from './EditPurchaseOrderModal';
+import { InvoicePurchaseModal } from './InvoicePurchaseModal';
 import purchaseOrderService from '../../services/purchaseOrderService';
 import inventoryService from '../../services/inventoryService';
 
@@ -15,6 +16,7 @@ const PurchaseOrderList = ({
   const dropdownRef = useRef(null);
 
   const [viewItemsModal, setViewItemsModal] = useState(null);
+  const [invoiceModal, setInvoiceModal] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingPO, setEditingPO] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
@@ -118,13 +120,20 @@ const PurchaseOrderList = ({
 
   // Action handlers
   const handleEdit = (po) => {
+    // Only allow edit when status is pending, approved, or received
+    if (po.status === 'cancelled') {
+      alert('Cannot edit purchase order. Cancelled purchase orders cannot be edited.');
+      return;
+    }
+
     setEditingPO(po);
     setEditModalOpen(true);
   };
 
   const handleDelete = async (po) => {
-    if (po.paymentStatus !== 'paid') {
-      alert('Cannot delete purchase order. Only paid purchase orders can be deleted.');
+    // Only allow delete when status is cancelled or received
+    if (po.status !== 'cancelled' && po.status !== 'received') {
+      alert('Cannot delete purchase order. Only cancelled or received purchase orders can be deleted.');
       return;
     }
 
@@ -569,10 +578,29 @@ const PurchaseOrderList = ({
             >
               <button
                 onClick={() => {
+                  setInvoiceModal(po);
+                  setActiveDropdown(null);
+                }}
+                className="w-full px-3 py-2 text-left hover:bg-emerald-50 hover:text-emerald-600 transition-colors flex items-center gap-2 text-gray-700"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="2" width="10" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M5 5H11M5 8H11M5 11H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span className="text-[12px] font-['Poppins',sans-serif]">View Invoice</span>
+              </button>
+
+              <button
+                onClick={() => {
                   handleEdit(po);
                   setActiveDropdown(null);
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
+                disabled={po.status === 'cancelled'}
+                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 ${po.status === 'cancelled'
+                  ? 'text-gray-400 cursor-not-allowed opacity-50'
+                  : 'hover:bg-blue-50 hover:text-blue-600 text-gray-700'
+                  }`}
+                title={po.status === 'cancelled' ? 'Cancelled purchase orders cannot be edited' : 'Edit purchase order'}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11 2L14 5L5 14H2V11L11 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
@@ -587,12 +615,12 @@ const PurchaseOrderList = ({
                   handleDelete(po);
                   setActiveDropdown(null);
                 }}
-                disabled={po.paymentStatus !== 'paid'}
-                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 ${po.paymentStatus !== 'paid'
+                disabled={po.status !== 'cancelled' && po.status !== 'received'}
+                className={`w-full px-3 py-2 text-left transition-colors flex items-center gap-2 ${po.status !== 'cancelled' && po.status !== 'received'
                   ? 'text-gray-400 cursor-not-allowed opacity-50'
                   : 'hover:bg-red-50 hover:text-red-600 text-gray-700'
                   }`}
-                title={po.paymentStatus !== 'paid' ? 'Only paid purchase orders can be deleted' : 'Delete purchase order'}
+                title={po.status !== 'cancelled' && po.status !== 'received' ? 'Only cancelled or received purchase orders can be deleted' : 'Delete purchase order'}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 4H3.33333H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -716,6 +744,17 @@ const PurchaseOrderList = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Invoice Purchase Modal */}
+      {invoiceModal && (
+        <InvoicePurchaseModal
+          purchaseOrder={invoiceModal}
+          onClose={() => setInvoiceModal(null)}
+          onViewItems={(po) => {
+            setViewItemsModal(po);
+          }}
+        />
       )}
 
       {/* Edit Purchase Order Modal */}

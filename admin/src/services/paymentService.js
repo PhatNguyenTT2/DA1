@@ -91,6 +91,24 @@ const paymentService = {
   },
 
   /**
+   * Update payment method
+   * @param {string} id - Payment ID
+   * @param {string} paymentMethod - New payment method (cash, card, bank_transfer, e_wallet, check, credit)
+   * @returns {Promise} Updated payment
+   */
+  updatePaymentMethod: async (id, paymentMethod) => {
+    try {
+      console.log(`[paymentService] Updating payment ${id} method to ${paymentMethod}`);
+      const response = await api.patch(`/payments/${id}/method`, { paymentMethod });
+      console.log('[paymentService] Payment method updated:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[paymentService] Error updating payment method:', error);
+      throw error.response?.data || error;
+    }
+  },
+
+  /**
    * Process refund for a payment (with inventory restoration)
    * @param {string} id - Payment ID
    * @param {number} amount - Refund amount
