@@ -188,12 +188,31 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
 
   const getFilteredProducts = (index) => {
     const searchTerm = productSearchTerms[index] || '';
-    if (!searchTerm) return products;
 
-    return products.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.sku && product.sku.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    // Get list of already selected product IDs (excluding current item)
+    const selectedProductIds = items
+      .map((item, idx) => idx !== index ? item.product : null)
+      .filter(id => id !== null);
+
+    // Filter products
+    let filtered = products.filter(product => {
+      // Exclude already selected products
+      if (selectedProductIds.includes(product.id)) {
+        return false;
+      }
+
+      // If search term exists, filter by name or SKU
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        return product.name.toLowerCase().includes(searchLower) ||
+          (product.sku && product.sku.toLowerCase().includes(searchLower));
+      }
+
+      return true;
+    });
+
+    // Limit to 20 results if no search term
+    return searchTerm ? filtered : filtered.slice(0, 20);
   };
 
   const calculateTotal = () => {
@@ -412,7 +431,7 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
               const filteredProducts = getFilteredProducts(index);
 
               return (
-                <div key={index} className="flex items-center gap-3 mb-3">
+                <div key={index} className="flex items-center gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
                   <div
                     ref={el => dropdownRefs.current[index] = el}
                     className="flex-1 relative"
@@ -469,7 +488,7 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
                     )}
                   </div>
 
-                  <div className="w-32">
+                  <div className="w-28">
                     <input
                       type="number"
                       value={item.quantity}
@@ -482,10 +501,16 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
                     />
                   </div>
 
+                  <div className="w-32 text-right">
+                    <div className="text-[13px] font-semibold font-['Poppins',sans-serif] text-gray-900">
+                      ${((parseFloat(item.quantity) || 0) * (parseFloat(selectedProduct?.price) || 0)).toFixed(2)}
+                    </div>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => removeItem(index)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M2 4H14M6 4V3C6 2.5 6.5 2 7 2H9C9.5 2 10 2.5 10 3V4M12 4V13C12 13.5 11.5 14 11 14H5C4.5 14 4 13.5 4 13V4H12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -509,8 +534,8 @@ export const EditOrderModal = ({ isOpen, onClose, onSuccess, order }) => {
                   </span>
                 ) : (
                   <span className={`px-2 py-1 rounded text-[11px] font-bold uppercase ${totals.customerType === 'vip' ? 'bg-purple-100 text-purple-700' :
-                      totals.customerType === 'wholesale' ? 'bg-blue-100 text-blue-700' :
-                        'bg-green-100 text-green-700'
+                    totals.customerType === 'wholesale' ? 'bg-blue-100 text-blue-700' :
+                      'bg-green-100 text-green-700'
                     }`}>
                     {totals.customerType}
                   </span>

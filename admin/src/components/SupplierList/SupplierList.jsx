@@ -109,7 +109,7 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
     <div className="bg-white rounded-lg shadow-sm">
       {/* Scrollable Container - overflow-x-auto allows horizontal scroll */}
       <div className="overflow-x-auto rounded-lg">
-        <div className="min-w-[1180px]">
+        <div className="min-w-[1200px]">
           {/* Table Header */}
           <div className="flex items-center h-[34px] bg-gray-50 border-b border-gray-200">
             {/* ID Column - Sortable */}
@@ -123,9 +123,9 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
               </p>
             </div>
 
-            {/* Name Column - Sortable */}
+            {/* Name Column - Sortable - Flex */}
             <div
-              className="w-[160px] px-3 flex items-center flex-shrink-0 cursor-pointer hover:bg-gray-100 transition-colors"
+              className="flex-1 min-w-[180px] px-3 flex items-center cursor-pointer hover:bg-gray-100 transition-colors"
               onClick={() => handleSortClick('companyName')}
             >
               <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px] flex items-center">
@@ -187,7 +187,7 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
 
             {/* Active Column - Sortable */}
             <div
-              className="w-[100px] px-3 flex items-center flex-shrink-0 cursor-pointer hover:bg-gray-100 transition-colors"
+              className="w-[120px] px-3 flex items-center flex-shrink-0 cursor-pointer hover:bg-gray-100 transition-colors"
               onClick={() => handleSortClick('isActive')}
             >
               <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px] flex items-center">
@@ -220,8 +220,8 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
                     </p>
                   </div>
 
-                  {/* Name */}
-                  <div className="w-[160px] px-3 flex items-center flex-shrink-0">
+                  {/* Name - Flex */}
+                  <div className="flex-1 min-w-[180px] px-3 flex items-center">
                     <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529] leading-[20px] truncate">
                       {supplier.companyName}
                     </p>
@@ -263,7 +263,7 @@ export const SupplierList = ({ suppliers = [], onSort, sortField, sortOrder, add
                   </div>
 
                   {/* Active Status - Dropdown */}
-                  <div className="w-[100px] px-3 flex items-center flex-shrink-0">
+                  <div className="w-[120px] px-3 flex items-center flex-shrink-0">
                     <button
                       onClick={(e) => toggleDropdown(`active-${supplier.id}`, e)}
                       className={`${supplier.isActive !== false ? 'bg-[#10b981]' : 'bg-[#6b7280]'} px-2 py-1 rounded inline-flex items-center gap-1 cursor-pointer hover:opacity-90 transition-opacity`}
