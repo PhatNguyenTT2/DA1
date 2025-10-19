@@ -14,6 +14,7 @@ const Orders = () => {
 
   // State management
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -68,6 +69,55 @@ const Orders = () => {
     fetchOrders();
   }, [filters]);
 
+  // Apply search and sorting when data or filters change (Auto-filter like Categories)
+  useEffect(() => {
+    let result = [...orders];
+
+    // Apply search filter - search by ID, order number, or customer name
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(order => {
+        const orderNumber = (order.orderNumber || '').toLowerCase();
+        const customerName = (order.customerName || '').toLowerCase();
+        const orderId = (order.id || '').toString().toLowerCase();
+
+        return orderNumber.includes(query) ||
+          customerName.includes(query) ||
+          orderId.includes(query);
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal == null) aVal = '';
+      if (bVal == null) bVal = '';
+
+      // Handle different data types
+      if (sortField === 'total') {
+        aVal = parseFloat(aVal) || 0;
+        bVal = parseFloat(bVal) || 0;
+      } else if (sortField === 'date' || sortField === 'createdAt') {
+        aVal = new Date(aVal).getTime();
+        bVal = new Date(bVal).getTime();
+      } else {
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    setFilteredOrders(result);
+  }, [orders, searchQuery, sortField, sortOrder]);
+
   // Handle status change
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -121,28 +171,14 @@ const Orders = () => {
     setFilters({ ...filters, per_page: newPerPage, page: 1 });
   };
 
+  // Handle search change - auto-filter (no need to click search button)
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
+  // Handle search button click (optional - mainly for UX consistency)
   const handleSearch = (query) => {
-    // Search by ID or Name
-    const searchLower = query.toLowerCase().trim();
-
-    if (!searchLower) {
-      // If search is empty, fetch all orders
-      fetchOrders();
-      return;
-    }
-
-    // Filter orders locally (or you can implement backend search)
-    const filtered = orders.filter(order => {
-      const orderNumber = (order.orderNumber || '').toLowerCase();
-      const customerName = (order.customerName || '').toLowerCase();
-      const orderId = (order.id || '').toLowerCase();
-
-      return orderNumber.includes(searchLower) ||
-        customerName.includes(searchLower) ||
-        orderId.includes(searchLower);
-    });
-
-    setOrders(filtered);
+    setSearchQuery(query);
   };
 
   // Handle column sort
@@ -156,32 +192,6 @@ const Orders = () => {
 
     setSortField(field);
     setSortOrder(newSortOrder);
-
-    // Sort orders locally
-    const sorted = [...orders].sort((a, b) => {
-      let aVal = a[field];
-      let bVal = b[field];
-
-      // Handle different data types
-      if (field === 'total') {
-        aVal = parseFloat(aVal) || 0;
-        bVal = parseFloat(bVal) || 0;
-      } else if (field === 'date') {
-        aVal = new Date(aVal).getTime();
-        bVal = new Date(bVal).getTime();
-      } else {
-        aVal = String(aVal || '').toLowerCase();
-        bVal = String(bVal || '').toLowerCase();
-      }
-
-      if (newSortOrder === 'asc') {
-        return aVal > bVal ? 1 : -1;
-      } else {
-        return aVal < bVal ? 1 : -1;
-      }
-    });
-
-    setOrders(sorted);
   };
 
   // Handle add order
@@ -206,7 +216,7 @@ const Orders = () => {
           itemsPerPage={filters.per_page}
           onItemsPerPageChange={handleItemsPerPageChange}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onSearch={handleSearch}
           onAddOrder={handleAddOrder}
         />
@@ -236,7 +246,7 @@ const Orders = () => {
         {!loading && !error && (
           <>
             <OrderList
-              orders={orders}
+              orders={filteredOrders}
               onStatusChange={handleStatusChange}
               onEdit={(order) => setEditOrderModal(order)}
               onDelete={handleDeleteOrder}
@@ -353,12 +363,26 @@ const Orders = () => {
             )}
 
             {/* Results Summary */}
-            {orders.length > 0 && (
+            {filteredOrders.length > 0 && (
               <div className="text-center text-sm text-gray-600 font-['Poppins',sans-serif] mt-4">
                 Showing {((pagination.current_page - 1) * pagination.per_page) + 1} to {Math.min(pagination.current_page * pagination.per_page, pagination.total)} of {pagination.total} orders
+                {searchQuery && ` (filtered from ${orders.length} total)`}
               </div>
             )}
           </>
+        )}
+
+        {/* Empty State - No Results from Search */}
+        {!loading && !error && filteredOrders.length === 0 && orders.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
+            <p className="text-gray-500 text-sm">No orders found matching "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-2 text-sm text-emerald-600 hover:underline"
+            >
+              Clear search
+            </button>
+          </div>
         )}
       </div>
 

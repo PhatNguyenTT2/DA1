@@ -14,6 +14,7 @@ const Inventories = () => {
 
   // State management
   const [inventory, setInventory] = useState([]);
+  const [filteredInventory, setFilteredInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -123,6 +124,53 @@ const Inventories = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.page, filters.limit, filterView]);
 
+  // Apply search and sorting when data or filters change (Auto-filter like Categories)
+  useEffect(() => {
+    let result = [...inventory];
+
+    // Apply search filter - search by SKU or product name
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(item => {
+        const sku = (item.sku || '').toLowerCase();
+        const productName = (item.productName || '').toLowerCase();
+
+        return sku.includes(query) || productName.includes(query);
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal == null) aVal = '';
+      if (bVal == null) bVal = '';
+
+      // Handle different data types
+      if (sortField === 'quantityOnHand' || sortField === 'quantityReserved' ||
+        sortField === 'quantityAvailable' || sortField === 'reorderPoint') {
+        aVal = Number(aVal) || 0;
+        bVal = Number(bVal) || 0;
+      } else if (sortField === 'lastRestocked' || sortField === 'createdAt') {
+        aVal = aVal ? new Date(aVal).getTime() : 0;
+        bVal = bVal ? new Date(bVal).getTime() : 0;
+      } else {
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    setFilteredInventory(result);
+  }, [inventory, searchQuery, sortField, sortOrder]);
+
   // Handle filter changes
   const handleItemsPerPageChange = (newLimit) => {
     setFilters({ ...filters, limit: newLimit, page: 1 });
@@ -134,26 +182,14 @@ const Inventories = () => {
     setFilters({ ...filters, page: 1 });
   };
 
-  // Handle search
+  // Handle search change - auto-filter (no need to click search button)
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
+  // Handle search button click (optional - mainly for UX consistency)
   const handleSearch = (query) => {
-    const searchLower = query.toLowerCase().trim();
-
-    if (!searchLower) {
-      // If search is empty, reset to original data
-      fetchInventory();
-      return;
-    }
-
-    // Filter inventory locally
-    const allInventory = [...inventory];
-    const filtered = allInventory.filter(item => {
-      const sku = (item.sku || '').toLowerCase();
-      const productName = (item.productName || '').toLowerCase();
-
-      return sku.includes(searchLower) || productName.includes(searchLower);
-    });
-
-    setInventory(filtered);
+    setSearchQuery(query);
   };
 
   // Handle column sort
@@ -167,32 +203,6 @@ const Inventories = () => {
 
     setSortField(field);
     setSortOrder(newSortOrder);
-
-    // Sort inventory locally
-    const sorted = [...inventory].sort((a, b) => {
-      let aVal = a[field];
-      let bVal = b[field];
-
-      // Handle different data types
-      if (field === 'quantityOnHand' || field === 'quantityReserved' || field === 'quantityAvailable' || field === 'reorderPoint') {
-        aVal = Number(aVal || 0);
-        bVal = Number(bVal || 0);
-      } else if (field === 'lastRestocked' || field === 'createdAt') {
-        aVal = aVal ? new Date(aVal).getTime() : 0;
-        bVal = bVal ? new Date(bVal).getTime() : 0;
-      } else {
-        aVal = String(aVal || '').toLowerCase();
-        bVal = String(bVal || '').toLowerCase();
-      }
-
-      if (newSortOrder === 'asc') {
-        return aVal > bVal ? 1 : -1;
-      } else {
-        return aVal < bVal ? 1 : -1;
-      }
-    });
-
-    setInventory(sorted);
   };
 
   // Handle stock in
@@ -233,7 +243,7 @@ const Inventories = () => {
           itemsPerPage={filters.limit}
           onItemsPerPageChange={handleItemsPerPageChange}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onSearch={handleSearch}
           onStockIn={handleStockIn}
           onAdjust={handleAdjust}
@@ -266,7 +276,7 @@ const Inventories = () => {
         {!loading && !error && (
           <>
             <InventoryList
-              inventory={inventory}
+              inventory={filteredInventory}
               onSort={handleColumnSort}
               sortField={sortField}
               sortOrder={sortOrder}
@@ -381,15 +391,29 @@ const Inventories = () => {
             )}
 
             {/* Results Summary */}
-            {inventory.length > 0 && (
+            {filteredInventory.length > 0 && (
               <div className="text-center text-sm text-gray-600 font-['Poppins',sans-serif] mt-4">
                 Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
                 {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
                 {pagination.total} items
+                {searchQuery && ` (filtered from ${inventory.length} total)`}
               </div>
             )}
 
-            {/* Empty State */}
+            {/* Empty State - No Results from Search */}
+            {filteredInventory.length === 0 && inventory.length > 0 && !loading && (
+              <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
+                <p className="text-gray-500 text-sm">No inventory items found matching "{searchQuery}"</p>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="mt-2 text-sm text-emerald-600 hover:underline"
+                >
+                  Clear search
+                </button>
+              </div>
+            )}
+
+            {/* Empty State - No Data */}
             {inventory.length === 0 && !loading && (
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                 <p className="text-gray-500 text-[14px] font-['Poppins',sans-serif]">

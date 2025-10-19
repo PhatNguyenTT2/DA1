@@ -61,23 +61,15 @@ const PaymentListHeader = ({
 
           {/* Search Input */}
           <div className="flex-1 max-w-[300px]">
-            <div className="flex h-[36px] gap-1">
+            <div className="relative h-[36px]">
               <input
                 type="text"
                 placeholder="Search by Payment ID, Order..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && onSearch) {
-                    onSearch(searchQuery);
-                  }
-                }}
-                className="flex-1 bg-white border border-[#ced4da] rounded-lg px-3 py-2 text-[12px] font-['Poppins',sans-serif] text-gray-900 placeholder:text-[#6c757d] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full h-full bg-white border border-[#ced4da] rounded-lg pl-3 pr-10 py-2 text-[12px] font-['Poppins',sans-serif] text-gray-900 placeholder:text-[#6c757d] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               />
-              <button
-                className="w-[40px] bg-white border border-[#ced4da] rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
-                onClick={() => onSearch && onSearch(searchQuery)}
-              >
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg
                   width="14"
                   height="14"
@@ -100,7 +92,7 @@ const PaymentListHeader = ({
                     strokeLinejoin="round"
                   />
                 </svg>
-              </button>
+              </div>
             </div>
           </div>
         </div>

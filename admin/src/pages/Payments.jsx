@@ -13,6 +13,7 @@ const Payments = () => {
 
   // State management
   const [payments, setPayments] = useState([]);
+  const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -78,6 +79,61 @@ const Payments = () => {
     fetchPayments();
   }, [filters]);
 
+  // Apply search and sorting when data or filters change (Auto-filter like Categories)
+  useEffect(() => {
+    let result = [...payments];
+
+    // Apply search filter - search by Payment Number, Payment ID, Order Number, Customer/Supplier
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(payment => {
+        const paymentId = (payment.id || '').toString().toLowerCase();
+        const paymentNumber = (payment.paymentNumber || '').toLowerCase();
+        const relatedOrderNumber = (payment.relatedOrderNumber || '').toLowerCase();
+        const customer = (payment.customer || '').toLowerCase();
+        const supplier = (payment.supplier || '').toLowerCase();
+        const reference = (payment.reference || '').toLowerCase();
+
+        return paymentId.includes(query) ||
+          paymentNumber.includes(query) ||
+          relatedOrderNumber.includes(query) ||
+          customer.includes(query) ||
+          supplier.includes(query) ||
+          reference.includes(query);
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal == null) aVal = '';
+      if (bVal == null) bVal = '';
+
+      // Handle different data types
+      if (sortField === 'amount') {
+        aVal = parseFloat(aVal) || 0;
+        bVal = parseFloat(bVal) || 0;
+      } else if (sortField === 'date' || sortField === 'paymentDate' || sortField === 'createdAt') {
+        aVal = new Date(aVal).getTime();
+        bVal = new Date(bVal).getTime();
+      } else {
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    setFilteredPayments(result);
+  }, [payments, searchQuery, sortField, sortOrder]);
+
   // Handle status change
   const handleStatusChange = async (paymentId, newStatus) => {
     try {
@@ -126,18 +182,14 @@ const Payments = () => {
     }));
   };
 
-  // Handle search
+  // Handle search change - auto-filter (no need to click search button)
   const handleSearchChange = (query) => {
     setSearchQuery(query);
   };
 
+  // Handle search button click (optional - mainly for UX consistency)
   const handleSearch = (query) => {
-    console.log('[Payments] Searching for:', query);
-    setFilters(prev => ({
-      ...prev,
-      search: query,
-      page: 1
-    }));
+    setSearchQuery(query);
   };
 
   // Handle sort
@@ -145,15 +197,6 @@ const Payments = () => {
     const newSortOrder = sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
     setSortField(field);
     setSortOrder(newSortOrder);
-
-    // Backend format: '-field' for desc, 'field' for asc
-    const sortString = newSortOrder === 'desc' ? `-${field}` : field;
-    console.log('[Payments] Sorting by:', sortString);
-
-    setFilters(prev => ({
-      ...prev,
-      sort: sortString
-    }));
   };
 
   // Handle add payment
@@ -205,13 +248,34 @@ const Payments = () => {
         />
 
         <PaymentList
-          payments={payments}
+          payments={filteredPayments}
           onStatusChange={handleStatusChange}
           onRefund={handleRefund}
           onSort={handleSort}
           sortField={sortField}
           sortOrder={sortOrder}
         />
+
+        {/* Empty State - No Results from Search */}
+        {!loading && !error && filteredPayments.length === 0 && payments.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
+            <p className="text-gray-500 text-sm">No payments found matching "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-2 text-sm text-emerald-600 hover:underline"
+            >
+              Clear search
+            </button>
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {filteredPayments.length > 0 && (
+          <div className="text-center text-sm text-gray-600 font-['Poppins',sans-serif] mt-4">
+            Showing {filteredPayments.length} of {payments.length} payments
+            {searchQuery && ` (filtered)`}
+          </div>
+        )}
       </div>
     </Layout>
   );

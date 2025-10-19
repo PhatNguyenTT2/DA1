@@ -14,6 +14,7 @@ const PurchaseOrders = () => {
 
   // State management
   const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [filteredPurchaseOrders, setFilteredPurchaseOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -79,6 +80,57 @@ const PurchaseOrders = () => {
     fetchPurchaseOrders();
   }, [filters]);
 
+  // Apply search and sorting when data or filters change (Auto-filter like Categories)
+  useEffect(() => {
+    let result = [...purchaseOrders];
+
+    // Apply search filter - search by PO Number, Supplier Name, or Supplier Code
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      result = result.filter(po => {
+        const poNumber = (po.poNumber || '').toLowerCase();
+        const supplierName = (po.supplierName || '').toLowerCase();
+        const supplierCode = (po.supplierCode || '').toLowerCase();
+        const poId = (po.id || '').toString().toLowerCase();
+
+        return poNumber.includes(query) ||
+          supplierName.includes(query) ||
+          supplierCode.includes(query) ||
+          poId.includes(query);
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal == null) aVal = '';
+      if (bVal == null) bVal = '';
+
+      // Handle different data types
+      if (sortField === 'totalAmount' || sortField === 'quantity') {
+        aVal = parseFloat(aVal) || 0;
+        bVal = parseFloat(bVal) || 0;
+      } else if (sortField === 'orderDate' || sortField === 'expectedDelivery' || sortField === 'createdAt') {
+        aVal = new Date(aVal).getTime();
+        bVal = new Date(bVal).getTime();
+      } else {
+        aVal = String(aVal).toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    setFilteredPurchaseOrders(result);
+  }, [purchaseOrders, searchQuery, sortField, sortOrder]);
+
   // Handle items per page change
   const handleItemsPerPageChange = (newLimit) => {
     console.log('[PurchaseOrders] Changing limit to:', newLimit);
@@ -89,18 +141,14 @@ const PurchaseOrders = () => {
     }));
   };
 
-  // Handle search
+  // Handle search change - auto-filter (no need to click search button)
   const handleSearchChange = (query) => {
     setSearchQuery(query);
   };
 
+  // Handle search button click (optional - mainly for UX consistency)
   const handleSearch = (query) => {
-    console.log('[PurchaseOrders] Searching for:', query);
-    setFilters(prev => ({
-      ...prev,
-      search: query,
-      page: 1
-    }));
+    setSearchQuery(query);
   };
 
   // Handle sort
@@ -108,15 +156,6 @@ const PurchaseOrders = () => {
     const newSortOrder = sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
     setSortField(field);
     setSortOrder(newSortOrder);
-
-    // Backend format: '-field' for desc, 'field' for asc
-    const sortString = newSortOrder === 'desc' ? `-${field}` : field;
-    console.log('[PurchaseOrders] Sorting by:', sortString);
-
-    setFilters(prev => ({
-      ...prev,
-      sort: sortString
-    }));
   };
 
   // Handle add purchase order
@@ -168,12 +207,33 @@ const PurchaseOrders = () => {
         />
 
         <PurchaseOrderList
-          purchaseOrders={purchaseOrders}
+          purchaseOrders={filteredPurchaseOrders}
           onSort={handleSort}
           sortField={sortField}
           sortOrder={sortOrder}
           onRefresh={fetchPurchaseOrders}
         />
+
+        {/* Empty State - No Results from Search */}
+        {!loading && !error && filteredPurchaseOrders.length === 0 && purchaseOrders.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg">
+            <p className="text-gray-500 text-sm">No purchase orders found matching "{searchQuery}"</p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="mt-2 text-sm text-emerald-600 hover:underline"
+            >
+              Clear search
+            </button>
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {filteredPurchaseOrders.length > 0 && (
+          <div className="text-center text-sm text-gray-600 font-['Poppins',sans-serif] mt-4">
+            Showing {filteredPurchaseOrders.length} of {purchaseOrders.length} purchase orders
+            {searchQuery && ` (filtered)`}
+          </div>
+        )}
       </div>
     </Layout>
   );

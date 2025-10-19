@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export const InventoryListHeader = ({
   itemsPerPage,
@@ -11,27 +11,7 @@ export const InventoryListHeader = ({
   filterView,
   onFilterViewChange
 }) => {
-  const [localSearch, setLocalSearch] = useState(searchQuery || '');
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (onSearch) {
-      onSearch(localSearch);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setLocalSearch(value);
-    if (onSearchChange) {
-      onSearchChange(value);
-    }
-
-    // Auto search when empty
-    if (value === '' && onSearch) {
-      onSearch('');
-    }
-  };
+  // No local state needed - auto-filter on change
 
   return (
     <div className="bg-white rounded-lg shadow-sm">
@@ -91,17 +71,17 @@ export const InventoryListHeader = ({
             </div>
 
             {/* Search */}
-            <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md">
               <div className="relative">
                 <input
                   type="text"
-                  value={localSearch}
-                  onChange={handleSearchChange}
+                  value={searchQuery}
+                  onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
                   placeholder="Search by SKU or product name..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
                 <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
                   width="16"
                   height="16"
                   viewBox="0 0 16 16"
@@ -124,7 +104,7 @@ export const InventoryListHeader = ({
                   />
                 </svg>
               </div>
-            </form>
+            </div>
           </div>
 
           {/* Right side - View Filters */}
