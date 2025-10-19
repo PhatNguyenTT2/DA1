@@ -71,6 +71,18 @@ const productService = {
   getDiscountPercent: (price, originalPrice) => {
     if (!originalPrice || originalPrice <= price) return 0
     return Math.round(((originalPrice - price) / originalPrice) * 100)
+  },
+
+  // Helper: Calculate profit margin
+  getProfitMargin: (costPrice, sellingPrice) => {
+    if (!costPrice || !sellingPrice || sellingPrice <= 0) return 0
+    return parseFloat((((sellingPrice - costPrice) / sellingPrice) * 100).toFixed(2))
+  },
+
+  // Helper: Calculate profit amount
+  getProfitAmount: (costPrice, sellingPrice) => {
+    if (!costPrice || !sellingPrice) return 0
+    return parseFloat((sellingPrice - costPrice).toFixed(2))
   }
 }
 

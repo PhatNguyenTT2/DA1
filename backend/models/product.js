@@ -29,10 +29,17 @@ const productSchema = new mongoose.Schema({
   },
 
   //Price
+  costPrice: {
+    type: Number,
+    required: [true, 'Cost price is required'],
+    min: [0, 'Cost price must be greater than or equal to 0'],
+    default: 0
+  },
+
   price: {
     type: Number,
-    required: [true, 'Price is required'],
-    min: [0, 'Price must be greater than 0']
+    required: [true, 'Selling price is required'],
+    min: [0, 'Selling price must be greater than 0']
   },
 
   originalPrice: {
@@ -156,6 +163,23 @@ productSchema.index({ category: 1, price: 1 });
 productSchema.virtual('discountPercent').get(function () {
   if (this.originalPrice && this.originalPrice > this.price)
     return Math.round(((this.originalPrice - this.price) / this.originalPrice) * 100);
+  return 0;
+})
+
+// Virtual: Profit Margin (%)
+productSchema.virtual('profitMargin').get(function () {
+  if (this.price && this.costPrice && this.price > 0) {
+    return parseFloat((((this.price - this.costPrice) / this.price) * 100).toFixed(2));
+  }
+  return 0;
+})
+
+// Virtual: Profit Amount
+productSchema.virtual('profitAmount').get(function () {
+  if (this.price && this.costPrice) {
+    return parseFloat((this.price - this.costPrice).toFixed(2));
+  }
+  return 0;
 })
 
 // Generate slug from name

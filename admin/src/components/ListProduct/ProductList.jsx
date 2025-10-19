@@ -164,7 +164,7 @@ export const ProductList = ({
               onClick={() => handleSortClick('price')}
             >
               <p className="text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px] leading-[18px] flex items-center">
-                Price
+                Selling Price
                 {getSortIcon('price')}
               </p>
             </div>

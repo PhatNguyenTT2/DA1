@@ -233,7 +233,8 @@ export const StockInModal = ({ isOpen, onClose, onSuccess, preSelectedProduct = 
       newItems[index] = {
         ...newItems[index],
         product: extractedId,
-        unitPrice: product.purchasePrice || product.price || 0
+        // Use costPrice for purchase orders (not selling price)
+        unitPrice: product.costPrice || 0
       };
       console.log(`SelectProduct[${index}]: updated item =`, newItems[index]);
       setItems(newItems);
@@ -600,8 +601,11 @@ export const StockInModal = ({ isOpen, onClose, onSuccess, preSelectedProduct = 
 
                     {selectedProduct && !showProductDropdown[index] && (
                       <div className="absolute inset-0 px-3 py-2 bg-white border border-emerald-500 rounded-lg text-[13px] font-['Poppins',sans-serif] flex items-center justify-between pointer-events-none">
-                        <span className="text-emerald-700 font-medium">
-                          {selectedProduct.name} - ${selectedProduct.price} (Stock: {selectedProduct.stock})
+                        <span className="text-emerald-700 font-medium truncate">
+                          {selectedProduct.name}
+                        </span>
+                        <span className="text-emerald-600 font-semibold ml-2 flex-shrink-0">
+                          Cost: ${selectedProduct.costPrice || 0}
                         </span>
                       </div>
                     )}
@@ -622,7 +626,14 @@ export const StockInModal = ({ isOpen, onClose, onSuccess, preSelectedProduct = 
                             >
                               <div className="flex items-center justify-between">
                                 <span className="font-medium text-gray-900">{product.name}</span>
-                                <span className="text-emerald-600 font-semibold">${product.price}</span>
+                                <div className="flex flex-col items-end">
+                                  <span className="text-emerald-600 font-semibold">
+                                    Cost: ${product.costPrice || 0}
+                                  </span>
+                                  <span className="text-gray-500 text-[10px]">
+                                    Sell: ${product.price}
+                                  </span>
+                                </div>
                               </div>
                               <div className="flex items-center gap-2 mt-0.5 text-gray-500 text-[11px]">
                                 {product.sku && <span>SKU: {product.sku}</span>}

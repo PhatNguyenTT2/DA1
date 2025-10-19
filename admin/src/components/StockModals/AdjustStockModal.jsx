@@ -504,6 +504,9 @@ export const AdjustStockModal = ({ isOpen, onClose, onSuccess, preSelectedProduc
                           {selectedProduct.name}
                           {selectedProduct.sku && ` (${selectedProduct.sku})`}
                         </span>
+                        <span className="text-blue-600 font-semibold text-[11px]">
+                          Cost: ${selectedProduct.costPrice || 0}
+                        </span>
                       </div>
                     )}
 
@@ -523,13 +526,22 @@ export const AdjustStockModal = ({ isOpen, onClose, onSuccess, preSelectedProduc
                             >
                               <div className="flex items-center justify-between">
                                 <span className="font-medium text-gray-900">{product.name}</span>
-                                <span className="text-blue-600 font-semibold">${product.price}</span>
-                              </div>
-                              {product.sku && (
-                                <div className="text-gray-500 text-[11px] mt-0.5">
-                                  SKU: {product.sku}
+                                <div className="flex flex-col items-end">
+                                  <span className="text-blue-600 font-semibold">
+                                    Cost: ${product.costPrice || 0}
+                                  </span>
+                                  <span className="text-gray-500 text-[10px]">
+                                    Sell: ${product.price}
+                                  </span>
                                 </div>
-                              )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5 text-gray-500 text-[11px]">
+                                {product.sku && <span>SKU: {product.sku}</span>}
+                                <span>•</span>
+                                <span className={product.stock > 0 ? 'text-green-600' : 'text-red-600'}>
+                                  Stock: {product.stock}
+                                </span>
+                              </div>
                             </button>
                           ))
                         )}

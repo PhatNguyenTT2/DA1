@@ -7,7 +7,9 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
     name: '',
     image: '',
     category: '',
+    costPrice: '',
     price: '',
+    originalPrice: '',
     vendor: '',
     stock: '',
     description: ''
@@ -26,7 +28,9 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
         name: product.name || '',
         image: product.image || '',
         category: product.category?.id || product.category?._id || product.category || '',
+        costPrice: product.costPrice?.toString() || '',
         price: product.price?.toString() || '',
+        originalPrice: product.originalPrice?.toString() || '',
         vendor: product.vendor || '',
         stock: product.stock?.toString() || '',
         description: product.description || ''
@@ -63,9 +67,22 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
       return;
     }
 
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      setError('Price must be greater than 0');
+    if (!formData.costPrice || parseFloat(formData.costPrice) < 0) {
+      setError('Cost price must be greater than or equal to 0');
       return;
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      setError('Selling price must be greater than 0');
+      return;
+    }
+
+    // Warning if selling below cost
+    if (parseFloat(formData.price) < parseFloat(formData.costPrice)) {
+      const confirmed = window.confirm(
+        '⚠️ WARNING: Selling price is lower than cost price.\nThis will result in a loss!\n\nContinue anyway?'
+      );
+      if (!confirmed) return;
     }
 
     if (!formData.vendor.trim()) {
@@ -96,11 +113,17 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
       const productData = {
         name: formData.name.trim(),
         category: formData.category,
+        costPrice: parseFloat(formData.costPrice),
         price: parseFloat(formData.price),
         vendor: formData.vendor.trim(),
         stock: parseInt(formData.stock),
         description: formData.description.trim()
       };
+
+      // Add originalPrice if provided
+      if (formData.originalPrice && parseFloat(formData.originalPrice) > 0) {
+        productData.originalPrice = parseFloat(formData.originalPrice);
+      }
 
       // Add image
       if (formData.image.trim()) {
@@ -297,12 +320,32 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
             </div>
           </div>
 
-          {/* Row 3: Price & Stock */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Price */}
+          {/* Row 3: Cost Price, Selling Price, Original Price */}
+          <div className="grid grid-cols-3 gap-4">
+            {/* Cost Price (Purchase Price) */}
             <div>
               <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">
-                Price ($) <span className="text-red-500">*</span>
+                Cost Price ($) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={formData.costPrice}
+                onChange={(e) => handleChange('costPrice', e.target.value)}
+                placeholder="0.00"
+                required
+                min="0"
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+              <p className="mt-1 text-[11px] text-gray-500 font-['Poppins',sans-serif]">
+                Purchase from supplier
+              </p>
+            </div>
+
+            {/* Selling Price */}
+            <div>
+              <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">
+                Selling Price ($) <span className="text-red-500">*</span>
               </label>
               <input
                 type="number"
@@ -314,24 +357,71 @@ export const EditProductModal = ({ isOpen, onClose, onSuccess, product }) => {
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
+              {/* Auto-calculate profit margin */}
+              {formData.costPrice && formData.price &&
+                parseFloat(formData.costPrice) > 0 && parseFloat(formData.price) > 0 && (
+                  <p className={`mt-1 text-[11px] font-medium font-['Poppins',sans-serif] ${parseFloat(formData.price) >= parseFloat(formData.costPrice)
+                      ? 'text-emerald-600'
+                      : 'text-red-600'
+                    }`}>
+                    {parseFloat(formData.price) >= parseFloat(formData.costPrice) ? '📈' : '📉'} Margin: {
+                      (((parseFloat(formData.price) - parseFloat(formData.costPrice)) /
+                        parseFloat(formData.price)) * 100).toFixed(2)
+                    }%
+                  </p>
+                )}
             </div>
 
-            {/* Stock */}
+            {/* Original Price (Optional - for discount) */}
             <div>
               <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">
-                Stock Quantity <span className="text-red-500">*</span>
+                Original Price ($)
               </label>
               <input
                 type="number"
-                value={formData.stock}
-                onChange={(e) => handleChange('stock', e.target.value)}
-                placeholder="0"
-                required
+                value={formData.originalPrice}
+                onChange={(e) => handleChange('originalPrice', e.target.value)}
+                placeholder="0.00"
                 min="0"
-                step="1"
+                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
+              {/* Auto-calculate discount */}
+              {formData.originalPrice && formData.price &&
+                parseFloat(formData.originalPrice) > parseFloat(formData.price) && (
+                  <p className="mt-1 text-[11px] text-blue-600 font-medium font-['Poppins',sans-serif]">
+                    🏷️ Discount: {
+                      Math.round(((parseFloat(formData.originalPrice) - parseFloat(formData.price)) /
+                        parseFloat(formData.originalPrice)) * 100)
+                    }% off
+                  </p>
+                )}
+              {!formData.originalPrice && (
+                <p className="mt-1 text-[11px] text-gray-500 font-['Poppins',sans-serif]">
+                  For products on sale
+                </p>
+              )}
             </div>
+          </div>
+
+          {/* Row 4: Stock */}
+          <div>
+            <label className="block text-[13px] font-medium font-['Poppins',sans-serif] text-[#212529] mb-2">
+              Stock Quantity <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              value={formData.stock}
+              onChange={(e) => handleChange('stock', e.target.value)}
+              placeholder="0"
+              required
+              min="0"
+              step="1"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-[13px] font-['Poppins',sans-serif] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+            <p className="mt-1 text-[11px] text-gray-500 font-['Poppins',sans-serif]">
+              Managed through purchase orders and sales
+            </p>
           </div>
 
           {/* Description */}
