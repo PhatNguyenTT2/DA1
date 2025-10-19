@@ -116,9 +116,11 @@ const customerService = {
       email: customer.email || null,
       phone: customer.phone || null,
       address: customer.address || null, // Keep full address object
-      dob: customer.dateOfBirth || customer.dob || null, // Backend uses dateOfBirth
+      dateOfBirth: customer.dateOfBirth || customer.dob || null, // Backend uses dateOfBirth
+      dob: customer.dateOfBirth || customer.dob || null, // Alias for compatibility
       gender: customer.gender || null,
-      customerType: customer.customerType || 'Regular',
+      customerType: customer.customerType || 'retail',
+      totalSpent: customer.totalSpent || 0,
       isActive: customer.isActive !== undefined ? customer.isActive : true,
       createdAt: customer.createdAt,
       updatedAt: customer.updatedAt

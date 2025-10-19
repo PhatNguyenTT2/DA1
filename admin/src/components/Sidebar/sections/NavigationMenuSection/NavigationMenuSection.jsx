@@ -90,26 +90,26 @@ export const NavigationMenuSection = () => {
           ]
         },
         { name: 'Payments', icon: DollarSign, href: '/payments' },
-        { name: 'Reports', icon: ReceiptEuro },
+        {
+          name: 'Reports',
+          icon: ReceiptEuro,
+          arrow: true,
+          submenu: [
+            { name: 'Sales', href: '/reports/sales' },
+            { name: 'Purchase', href: '/reports/purchase' },
+            { name: 'Profit', href: '/reports/profit' },
+            { name: 'Inventory', href: '/reports/inventory' }
+          ]
+        },
       ],
     },
-    // {
-    //   category: 'Apps',
-    //   items: [
-    //     { name: 'Chats', icon: MessageSquare, badge: 2 },
-    //     { name: 'Email', icon: Mail, arrow: true },
-    //     { name: 'Todo App', icon: CheckSquare, arrow: true },
-    //   ],
-    // },
     {
       category: 'Admin',
       items: [
         { name: 'Profile', icon: UserCircle, arrow: true },
         { name: 'Users', icon: Users, href: '/users' },
         { name: 'Authentication', icon: Shield, arrow: true },
-        // { name: 'Error Pages', icon: AlertTriangle, arrow: true },
         { name: 'Settings', icon: Settings },
-        // { name: 'Pricing Table', icon: DollarSign, new: true },
       ],
     },
   ];

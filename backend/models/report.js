@@ -9,7 +9,7 @@ const reportSchema = new mongoose.Schema({
 
   reportType: {
     type: String,
-    enum: ['sales', 'inventory', 'revenue', 'profit', 'customer', 'product', 'supplier'],
+    enum: ['sales', 'purchase', 'inventory', 'profit', 'customer', 'product', 'supplier'],
     required: true
   },
 

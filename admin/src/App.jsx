@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Dashboard, ViewProduct, DetailProduct, ListProduct, LoginSignup, Orders, Categories, Users, TestUsers, Customers, Suppliers, Inventories } from "./pages";
 import PurchaseOrders from "./pages/PurchaseOrders";
 import Payments from "./pages/Payments";
+import SalesReports from "./pages/reports/Sales";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 
@@ -124,6 +125,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Payments />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Reports Routes */}
+        <Route
+          path="/reports/sales"
+          element={
+            <ProtectedRoute>
+              <SalesReports />
             </ProtectedRoute>
           }
         />
