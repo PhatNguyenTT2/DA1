@@ -23,12 +23,6 @@ Quản lý thông tin người dùng hệ thống (admin, nhân viên)
 | `role` | ObjectId | ✓ | Tham chiếu đến Role |
 | `department` | ObjectId |  | Tham chiếu đến Department |
 | `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `tokens` | Array |  | Danh sách token xác thực (expires sau 7 ngày) |
-| `resetPasswordToken` | String |  | Token reset mật khẩu |
-| `resetPasswordExpire` | Date |  | Thời gian hết hạn token |
-| `lastLogin` | Date |  | Lần đăng nhập cuối |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Indexes
 - `userCode`, `username`, `email` (unique)
@@ -55,9 +49,6 @@ Quản lý thông tin người dùng hệ thống (admin, nhân viên)
 | `roleName` | String | ✓ | Tên vai trò (2-50 ký tự) |
 | `description` | String |  | Mô tả vai trò (max 200 ký tự) |
 | `permissions` | Array[String] |  | Danh sách quyền hạn |
-| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Indexes
 - `roleId` (unique)
@@ -82,12 +73,6 @@ Quản lý thông tin các phòng ban trong công ty
 | `departmentName` | String | ✓ | Tên phòng ban (2-100 ký tự) |
 | `description` | String |  | Mô tả (max 300 ký tự) |
 | `manager` | ObjectId |  | Tham chiếu đến User (Trưởng phòng) |
-| `location` | String |  | Địa điểm (max 100 ký tự) |
-| `phone` | String |  | Số điện thoại (10-15 số) |
-| `email` | String |  | Email phòng ban |
-| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Indexes
 - `departmentId` (unique)
@@ -113,11 +98,7 @@ Phân loại sản phẩm theo danh mục
 | `slug` | String | Auto | URL-friendly name (unique, lowercase) |
 | `image` | String |  | URL ảnh danh mục |
 | `description` | String |  | Mô tả danh mục (max 500 ký tự) |
-| `parent` | ObjectId |  | Danh mục cha (cho danh mục con) |
-| `order` | Number |  | Thứ tự hiển thị (default: 0) |
 | `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `productCount`: Số lượng sản phẩm trong danh mục
@@ -150,29 +131,9 @@ Quản lý thông tin chi tiết về sản phẩm
 | `price` | Number | ✓ | Giá bán (> 0) |
 | `originalPrice` | Number |  | Giá gốc (trước giảm giá) |
 | `image` | String | ✓ | URL ảnh chính |
-| `images` | Array[String] |  | Danh sách URL ảnh phụ |
-| `description` | String |  | Mô tả ngắn (max 2000 ký tự) |
-| `detailDescription` | Object |  | Mô tả chi tiết (JSON) |
-| `detailDescription.intro` | Array[String] |  | Giới thiệu |
-| `detailDescription.specifications` | Array |  | Thông số kỹ thuật |
-| `detailDescription.additionalDesc` | String |  | Mô tả bổ sung |
-| `detailDescription.packaging` | Array[String] |  | Thông tin đóng gói |
-| `detailDescription.suggestedUse` | Array[String] |  | Cách sử dụng |
-| `detailDescription.otherIngredients` | Array[String] |  | Thành phần khác |
-| `detailDescription.warnings` | Array[String] |  | Cảnh báo |
 | `vendor` | String | ✓ | Nhà cung cấp/thương hiệu |
 | `stock` | Number | ✓ | Số lượng tồn kho (≥ 0) |
-| `isInStock` | Boolean | Auto | Còn hàng (stock > 0) |
-| `rating` | Number |  | Đánh giá (0-5, default: 0) |
-| `reviewCount` | Number |  | Số lượt đánh giá (≥ 0) |
-| `type` | String |  | Loại sản phẩm |
-| `tags` | Array[String] |  | Thẻ tag |
-| `mfgDate` | Date |  | Ngày sản xuất |
-| `shelfLife` | String |  | Hạn sử dụng |
 | `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `isFeatured` | Boolean |  | Sản phẩm nổi bật (default: false) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `discountPercent`: Phần trăm giảm giá
@@ -209,26 +170,17 @@ Quản lý thông tin khách hàng và lịch sử mua hàng
 | `address` | Object |  | Địa chỉ chi tiết |
 | `address.street` | String |  | Đường |
 | `address.city` | String |  | Thành phố |
-| `address.state` | String |  | Tỉnh/Bang |
-| `address.zipCode` | String |  | Mã bưu điện |
-| `address.country` | String |  | Quốc gia (default: Vietnam) |
 | `dateOfBirth` | Date |  | Ngày sinh |
 | `gender` | String |  | Giới tính (male/female/other) |
 | `customerType` | String |  | Loại KH (retail/wholesale/vip, default: retail) |
-| `loyaltyPoints` | Number |  | Điểm thành viên (≥ 0, default: 0) |
-| `totalPurchases` | Number |  | Tổng số đơn hàng (≥ 0, default: 0) |
 | `totalSpent` | Number |  | Tổng tiền đã chi (≥ 0, default: 0) |
 | `notes` | String |  | Ghi chú |
 | `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `orders`: Danh sách đơn hàng của khách hàng
 
 ### Methods
-- `addLoyaltyPoints(points)`: Thêm điểm thưởng
-- `redeemLoyaltyPoints(points)`: Đổi điểm thưởng
 - `updatePurchaseStats(orderTotal)`: Cập nhật thống kê mua hàng (tự động nâng cấp loại KH)
 
 ### Indexes
@@ -257,44 +209,20 @@ Quản lý đơn hàng bán lẻ
 |--------|------|----------|-------|
 | `orderNumber` | String | Auto | Mã đơn hàng (ORD2501000001...) |
 | `customer` | Object | ✓ | Thông tin khách hàng |
-| `customer.name` | String | ✓ | Tên khách hàng |
-| `customer.email` | String | ✓ | Email khách hàng |
-| `customer.phone` | String | ✓ | SĐT khách hàng |
 | `user` | ObjectId |  | Tham chiếu đến User (nếu KH có tài khoản) |
 | `deliveryType` | String |  | Loại giao hàng (delivery/pickup, default: delivery) |
 | `shippingAddress` | Object |  | Địa chỉ giao hàng (bắt buộc nếu delivery) |
 | `shippingAddress.street` | String |  | Đường |
 | `shippingAddress.city` | String |  | Thành phố |
-| `shippingAddress.state` | String |  | Tỉnh/Bang |
-| `shippingAddress.zipCode` | String |  | Mã bưu điện |
-| `shippingAddress.country` | String |  | Quốc gia (default: Vietnam) |
 | `items` | Array | ✓ | Danh sách sản phẩm |
-| `items[].product` | ObjectId | ✓ | Tham chiếu đến Product |
-| `items[].productName` | String |  | Tên sản phẩm (cached) |
-| `items[].productImage` | String |  | Ảnh sản phẩm (cached) |
-| `items[].price` | Number | ✓ | Giá bán |
-| `items[].quantity` | Number | ✓ | Số lượng (≥ 1) |
-| `items[].subtotal` | Number | ✓ | Thành tiền |
 | `subtotal` | Number | ✓ | Tổng tiền hàng |
 | `shippingFee` | Number |  | Phí vận chuyển (default: 0) |
 | `tax` | Number |  | Thuế (default: 0) |
-| `discount` | Number |  | Giảm giá (default: 0) |
 | `discountType` | String |  | Loại giảm giá (none/retail/wholesale/vip) |
 | `discountPercentage` | Number |  | % giảm giá (default: 0) |
 | `total` | Number | ✓ | Tổng thanh toán |
-| `paymentMethod` | String |  | PT thanh toán (cash/card/bank_transfer/e_wallet) |
 | `paymentStatus` | String |  | Trạng thái TT (pending/paid/failed/refunded) |
-| `paidAt` | Date |  | Thời gian thanh toán |
 | `status` | String |  | Trạng thái ĐH (pending/processing/shipping/delivered/cancelled) |
-| `trackingNumber` | String |  | Mã vận đơn |
-| `processingAt` | Date |  | Thời gian xử lý |
-| `shippedAt` | Date |  | Thời gian giao hàng |
-| `deliveredAt` | Date |  | Thời gian hoàn thành |
-| `cancelledAt` | Date |  | Thời gian hủy |
-| `customerNote` | String |  | Ghi chú của KH |
-| `adminNote` | String |  | Ghi chú nội bộ |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Indexes
 - `orderNumber` (unique)
@@ -321,27 +249,16 @@ Quản lý giao dịch thanh toán (bán hàng và mua hàng)
 | `paymentNumber` | String | Auto | Mã thanh toán (PAY2025000001...) |
 | `paymentType` | String | ✓ | Loại thanh toán (sales/purchase) |
 | `relatedOrderId` | ObjectId | ✓ | ID đơn hàng/PO liên quan |
-| `relatedOrderNumber` | String |  | Số đơn hàng (cached) |
 | `amount` | Number | ✓ | Số tiền (≥ 0) |
 | `paymentMethod` | String | ✓ | PT thanh toán (cash/card/bank_transfer/e_wallet/check/credit) |
 | `paymentDate` | Date |  | Ngày thanh toán (default: now) |
-| `transactionId` | String |  | Mã giao dịch |
-| `bankReference` | String |  | Mã tham chiếu ngân hàng |
-| `cardLastFourDigits` | String |  | 4 số cuối thẻ |
 | `status` | String |  | Trạng thái (pending/completed/failed/refunded/cancelled) |
 | `refundedAmount` | Number |  | Số tiền đã hoàn (≥ 0, default: 0) |
 | `refundReason` | String |  | Lý do hoàn tiền |
-| `refundedAt` | Date |  | Thời gian hoàn tiền |
 | `customer` | ObjectId |  | Tham chiếu đến Customer (cho sales) |
 | `supplier` | ObjectId |  | Tham chiếu đến Supplier (cho purchase) |
 | `receivedBy` | ObjectId | ✓ | User xử lý thanh toán |
 | `notes` | String |  | Ghi chú |
-| `attachments` | Array |  | File đính kèm |
-| `attachments[].filename` | String |  | Tên file |
-| `attachments[].url` | String |  | URL file |
-| `attachments[].uploadedAt` | Date |  | Thời gian upload |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `netAmount`: Số tiền thực (amount - refundedAmount)
@@ -376,36 +293,20 @@ Quản lý thông tin nhà cung cấp
 |--------|------|----------|-------|
 | `supplierCode` | String | Auto | Mã NCC (SUP2025000001...) |
 | `companyName` | String | ✓ | Tên công ty |
-| `contactPerson` | Object |  | Người liên hệ |
-| `contactPerson.name` | String |  | Tên |
-| `contactPerson.position` | String |  | Chức vụ |
-| `contactPerson.phone` | String |  | SĐT |
-| `contactPerson.email` | String |  | Email |
 | `email` | String | ✓ | Email công ty (unique) |
 | `phone` | String | ✓ | SĐT công ty |
 | `address` | Object |  | Địa chỉ |
 | `address.street` | String |  | Đường |
 | `address.city` | String |  | Thành phố |
-| `address.state` | String |  | Tỉnh/Bang |
-| `address.zipCode` | String |  | Mã bưu điện |
-| `address.country` | String |  | Quốc gia (default: Vietnam) |
-| `taxId` | String |  | Mã số thuế (unique, sparse) |
 | `bankAccount` | Object |  | Thông tin ngân hàng |
 | `bankAccount.bankName` | String |  | Tên ngân hàng |
 | `bankAccount.accountNumber` | String |  | Số tài khoản |
-| `bankAccount.accountName` | String |  | Tên tài khoản |
-| `bankAccount.swiftCode` | String |  | Mã SWIFT |
 | `paymentTerms` | String |  | Điều khoản TT (cod/net15/net30/net60/net90, default: net30) |
 | `creditLimit` | Number |  | Hạn mức tín dụng (≥ 0, default: 0) |
 | `currentDebt` | Number |  | Công nợ hiện tại (≥ 0, default: 0) |
 | `productsSupplied` | Array[ObjectId] |  | Danh sách sản phẩm cung cấp |
-| `rating` | Number |  | Đánh giá (0-5, default: 0) |
-| `totalPurchaseOrders` | Number |  | Tổng số PO (≥ 0, default: 0) |
-| `totalPurchaseAmount` | Number |  | Tổng giá trị mua (≥ 0, default: 0) |
 | `notes` | String |  | Ghi chú |
 | `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `purchaseOrders`: Danh sách đơn đặt hàng
@@ -441,34 +342,15 @@ Quản lý đơn đặt hàng từ nhà cung cấp
 | `supplier` | ObjectId | ✓ | Tham chiếu đến Supplier |
 | `orderDate` | Date |  | Ngày đặt hàng (default: now) |
 | `expectedDeliveryDate` | Date |  | Ngày giao dự kiến |
-| `actualDeliveryDate` | Date |  | Ngày giao thực tế |
 | `items` | Array | ✓ | Danh sách sản phẩm |
-| `items[].product` | ObjectId | ✓ | Tham chiếu đến Product |
-| `items[].productName` | String |  | Tên sản phẩm (cached) |
-| `items[].sku` | String |  | SKU (cached) |
-| `items[].quantity` | Number | ✓ | Số lượng (≥ 1) |
-| `items[].unitPrice` | Number | ✓ | Đơn giá (≥ 0) |
-| `items[].subtotal` | Number |  | Thành tiền |
-| `items[].received` | Number |  | Đã nhận (≥ 0, default: 0) |
 | `subtotal` | Number |  | Tổng tiền hàng (≥ 0, default: 0) |
 | `shippingFee` | Number |  | Phí vận chuyển (≥ 0, default: 0) |
 | `tax` | Number |  | Thuế (≥ 0, default: 0) |
-| `discount` | Number |  | Giảm giá (≥ 0, default: 0) |
 | `total` | Number |  | Tổng thanh toán (≥ 0, default: 0) |
 | `status` | String |  | Trạng thái (pending/approved/received/cancelled) |
-| `paymentStatus` | String |  | Trạng thái TT (unpaid/partial/paid, default: unpaid) |
 | `paidAmount` | Number |  | Đã thanh toán (≥ 0, default: 0) |
 | `createdBy` | ObjectId | ✓ | User tạo đơn |
-| `approvedBy` | ObjectId |  | User phê duyệt |
-| `approvedAt` | Date |  | Thời gian phê duyệt |
-| `receivedBy` | ObjectId |  | User nhận hàng |
 | `notes` | String |  | Ghi chú |
-| `attachments` | Array |  | File đính kèm |
-| `attachments[].filename` | String |  | Tên file |
-| `attachments[].url` | String |  | URL file |
-| `attachments[].uploadedAt` | Date |  | Thời gian upload |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Methods
 - `approve(userId)`: Phê duyệt đơn hàng
@@ -505,10 +387,7 @@ Quản lý tồn kho và lịch sử xuất nhập kho
 | `quantityReserved` | Number |  | Số lượng đã đặt trước (≥ 0, default: 0) |
 | `quantityAvailable` | Number |  | Số lượng khả dụng (≥ 0, default: 0) |
 | `reorderPoint` | Number |  | Điểm đặt hàng lại (≥ 0, default: 10) |
-| `reorderQuantity` | Number |  | Số lượng đặt lại (≥ 0, default: 50) |
 | `warehouseLocation` | String |  | Vị trí trong kho |
-| `lastRestocked` | Date |  | Lần nhập cuối |
-| `lastSold` | Date |  | Lần bán cuối |
 | `movements` | Array |  | Lịch sử xuất nhập |
 | `movements[].type` | String | ✓ | Loại (in/out/adjustment/reserved/released) |
 | `movements[].quantity` | Number | ✓ | Số lượng |
@@ -519,8 +398,6 @@ Quản lý tồn kho và lịch sử xuất nhập kho
 | `movements[].date` | Date |  | Ngày (default: now) |
 | `movements[].performedBy` | ObjectId |  | User thực hiện |
 | `movements[].notes` | String |  | Ghi chú |
-| `createdAt` | Date | Auto | Thời gian tạo |
-| `updatedAt` | Date | Auto | Thời gian cập nhật |
 
 ### Virtual Fields
 - `isLowStock`: Kiểm tra hết hàng (quantityAvailable ≤ reorderPoint)
