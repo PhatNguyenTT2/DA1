@@ -16,6 +16,7 @@ const suppliersRouter = require('./controllers/suppliers')
 const purchaseOrdersRouter = require('./controllers/purchaseOrders')
 const paymentsRouter = require('./controllers/payments')
 const inventoryRouter = require('./controllers/inventory')
+const reportsRouter = require('./controllers/reports')
 
 const app = express()
 
@@ -49,6 +50,7 @@ app.use('/api/suppliers', suppliersRouter)
 app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/payments', paymentsRouter)
 app.use('/api/inventory', inventoryRouter)
+app.use('/api/reports', reportsRouter)
 // app.use('/api/cart', cartRouter)
 
 if (process.env.NODE_ENV === 'test') {

@@ -1,6 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ViewSalesDetailsModal } from './ViewSalesDetailsModal';
 
 export const SalesList = ({ salesData = [], summary = null, loading = false }) => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [viewDetailsModal, setViewDetailsModal] = useState(false);
+
+  const handleViewDetails = (product) => {
+    setSelectedProduct(product);
+    setViewDetailsModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setViewDetailsModal(false);
+    setSelectedProduct(null);
+  };
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow-sm py-12 text-center">
@@ -52,9 +65,6 @@ export const SalesList = ({ salesData = [], summary = null, loading = false }) =
               <th className="px-6 py-3 text-left text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
                 SKU
               </th>
-              <th className="px-6 py-3 text-center text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
-                Unit
-              </th>
               <th className="px-6 py-3 text-right text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
                 Quantity Sold
               </th>
@@ -63,6 +73,9 @@ export const SalesList = ({ salesData = [], summary = null, loading = false }) =
               </th>
               <th className="px-6 py-3 text-right text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
                 Total Amount
+              </th>
+              <th className="px-6 py-3 text-center text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
+                Actions
               </th>
             </tr>
           </thead>
@@ -89,13 +102,6 @@ export const SalesList = ({ salesData = [], summary = null, loading = false }) =
                   </p>
                 </td>
 
-                {/* Unit */}
-                <td className="px-6 py-4 text-center">
-                  <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529]">
-                    {item.unit || 'pcs'}
-                  </p>
-                </td>
-
                 {/* Quantity */}
                 <td className="px-6 py-4 text-right">
                   <p className="text-[13px] font-semibold font-['Poppins',sans-serif] text-blue-600">
@@ -115,6 +121,21 @@ export const SalesList = ({ salesData = [], summary = null, loading = false }) =
                   <p className="text-[14px] font-semibold font-['Poppins',sans-serif] text-emerald-600">
                     ${(item.totalAmount || 0).toFixed(2)}
                   </p>
+                </td>
+
+                {/* Actions */}
+                <td className="px-6 py-4 text-center">
+                  <button
+                    onClick={() => handleViewDetails(item)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 rounded-lg transition-colors text-[12px] font-['Poppins',sans-serif] font-medium"
+                    title="View order details"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 3C4.5 3 1.7 5.6 1 8c.7 2.4 3.5 5 7 5s6.3-2.6 7-5c-.7-2.4-3.5-5-7-5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                    </svg>
+                    View Details
+                  </button>
                 </td>
               </tr>
             ))}
@@ -144,11 +165,19 @@ export const SalesList = ({ salesData = [], summary = null, loading = false }) =
                     ${(summary.totalRevenue || 0).toFixed(2)}
                   </p>
                 </td>
+                <td></td>
               </tr>
             </tfoot>
           )}
         </table>
       </div>
+
+      {/* View Sales Details Modal */}
+      <ViewSalesDetailsModal
+        product={selectedProduct}
+        orders={selectedProduct?.orders || []}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
