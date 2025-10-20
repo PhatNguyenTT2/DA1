@@ -1,5 +1,7 @@
 ## Inventory & Purchasing System
 
+DEFAULT ACCOUNT: admin/admin123
+
 ### Overview
 This repository contains a full‑stack inventory and purchasing management system:
 - `admin/`: React (Vite + Tailwind CSS) admin UI
