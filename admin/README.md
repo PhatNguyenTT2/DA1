@@ -1,304 +1,728 @@
-# Mini Store - Admin Dashboard
+# Hệ Thống Quản Lý Bán Hàng - Database Design
 
-Hệ thống quản trị cửa hàng với React + Vite, kết nối với backend Node.js/Express và MongoDB.
-
-## 📋 Mục lục
-
-- [Tổng quan](#tổng-quan)
-- [Tính năng](#tính-năng)
-- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
-- [Cài đặt](#cài-đặt)
-- [Phiên bản](#phiên-bản)
-- [Roadmap](#roadmap)
-
-## 🎯 Tổng quan
-
-Admin Dashboard cho hệ thống Mini Store, cung cấp giao diện quản lý sản phẩm, đơn hàng, danh mục và các chức năng quản trị khác.
-
-### Trạng thái dự án
-
-- **Backend**: ✅ Hoàn thành và sẵn sàng
-- **Database**: ✅ MongoDB đã được cấu hình và sẵn sàng
-- **Frontend**: 🚧 Đang phát triển (Version 0.2.0)
-
-## ✨ Tính năng
-
-### ✅ Đã hoàn thành (v0.2.0)
-
-#### 🔐 Authentication
-- [x] Đăng nhập/Đăng ký
-- [x] Protected routes với authentication
-- [x] Token-based authentication
-
-#### 📊 Dashboard
-- [x] Tổng quan thống kê
-- [x] Biểu đồ doanh thu (Sales Chart)
-- [x] Hiển thị số liệu tổng hợp
-
-#### 🛍️ Quản lý Sản phẩm (Products)
-- [x] Danh sách sản phẩm với pagination (10 items/page)
-- [x] Sắp xếp theo ID, Name, Price, Stock
-- [x] Hiển thị giá theo định dạng USD
-- [x] Color-coded stock status (đỏ: hết hàng, vàng: < 10, xanh: đủ hàng)
-- [x] Actions dropdown (Edit/Delete) với fixed positioning
-- [x] Tích hợp API backend để fetch dữ liệu
-- [x] Responsive design với horizontal scroll
-
-#### 📦 Quản lý Đơn hàng (Orders)
-- [x] Danh sách đơn hàng với pagination
-- [x] Sắp xếp theo Order Number, Customer Name, Date, Total
-- [x] Thay đổi Order Status (Pending, Processing, Shipping, Delivered, Cancelled)
-- [x] Thay đổi Payment Status (Pending, Paid, Failed, Refunded)
-- [x] Status badges với color coding
-- [x] Dropdown menus với fixed positioning (không bị overflow)
-- [x] Actions dropdown (Edit/Delete)
-- [x] Tích hợp API backend
-
-#### 🏷️ Quản lý Danh mục (Categories)
-- [x] Danh sách categories với pagination (10 items/page)
-- [x] Sắp xếp theo ID, Name, Product Count
-- [x] Actions dropdown (Edit/Delete) với fixed positioning
-- [x] Tích hợp API backend
-- [x] Add Category functionality
-
-#### 🎨 UI/UX Components
-- [x] Header với navigation
-- [x] Sidebar menu
-- [x] Footer
-- [x] Breadcrumb navigation
-- [x] Layout system
-- [x] Consistent design system với Tailwind CSS
-- [x] Dropdown menus với portal-like rendering
-- [x] Fixed positioning cho dropdowns (không bị giới hạn bởi overflow containers)
-
-#### 🔧 Technical Features
-- [x] Client-side pagination
-- [x] Sort functionality với visual indicators
-- [x] Click-outside detection cho dropdowns
-- [x] Event handling với getBoundingClientRect()
-- [x] Responsive table design
-- [x] API service layer (authService, productService, orderService, categoryService)
-
-### 🚧 Đang phát triển (v0.3.0 - Upcoming)
-
-#### 📝 CRUD Operations
-- [ ] Form thêm sản phẩm mới
-- [ ] Form chỉnh sửa sản phẩm
-- [ ] Xóa sản phẩm với confirmation
-- [ ] Form thêm/sửa đơn hàng
-- [ ] Form thêm/sửa danh mục
-
-#### 🖼️ Image Management
-- [ ] Upload hình ảnh sản phẩm
-- [ ] Image preview
-- [ ] Multiple images per product
-- [ ] Image gallery
-
-#### 🔍 Search & Filter
-- [ ] Tìm kiếm sản phẩm theo tên, SKU
-- [ ] Lọc sản phẩm theo category, price range, stock
-- [ ] Tìm kiếm đơn hàng theo order number, customer name
-- [ ] Lọc đơn hàng theo status, date range
-
-#### 📊 Advanced Features
-- [ ] Bulk actions (select multiple items)
-- [ ] Export data (CSV, Excel)
-- [ ] Product variants (size, color, etc.)
-- [ ] Inventory management
-- [ ] Stock alerts
-
-### 📅 Roadmap (v0.4.0+)
-
-#### 👥 User Management
-- [ ] Danh sách users/customers
-- [ ] Quản lý roles và permissions
-- [ ] User profile management
-
-#### 📈 Analytics & Reports
-- [ ] Báo cáo doanh thu chi tiết
-- [ ] Báo cáo sản phẩm bán chạy
-- [ ] Báo cáo tồn kho
-- [ ] Export reports
-
-#### 🔔 Notifications
-- [ ] Real-time notifications
-- [ ] Order status updates
-- [ ] Low stock alerts
-- [ ] Email notifications
-
-#### ⚙️ Settings
-- [ ] Store settings
-- [ ] Payment settings
-- [ ] Shipping settings
-- [ ] Tax configuration
-
-## 🛠️ Công nghệ sử dụng
-
-### Frontend
-- **React 18** - UI library
-- **Vite** - Build tool & dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router DOM** - Client-side routing
-- **Axios** - HTTP client
-
-### Backend (Đã sẵn sàng)
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - MongoDB ODM
-- **JWT** - Authentication
-- **bcrypt** - Password hashing
-
-### Dev Tools
-- **ESLint** - Code linting
-- **PostCSS** - CSS processing
-- **Autoprefixer** - CSS vendor prefixes
-
-## 📦 Cài đặt
-
-### Yêu cầu
-- Node.js >= 16.x
-- npm hoặc yarn
-- MongoDB instance (đã được cấu hình)
-
-### Frontend Setup
-
-```bash
-# Clone repository
-git clone <repository-url>
-cd admin
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-```
-
-### Backend Setup
-
-```bash
-cd backend
-
-# Install dependencies
-npm install
-
-# Configure environment variables
-# Create .env file with:
-# - MONGODB_URI
-# - JWT_SECRET
-# - PORT
-
-# Run backend server
-npm start
-```
-
-### Environment Variables
-
-Tạo file `.env` trong thư mục admin với:
-
-```env
-VITE_API_URL=http://localhost:3001/api
-```
-
-Tạo file `.env` trong thư mục backend với:
-
-```env
-MONGODB_URI=<your-mongodb-connection-string>
-JWT_SECRET=<your-jwt-secret>
-PORT=3001
-```
-
-## 📁 Cấu trúc dự án
-
-```
-admin/
-├── src/
-│   ├── components/          # React components
-│   │   ├── CategoryList/    # Category management
-│   │   ├── OrderList/       # Order management
-│   │   ├── ProductList/     # Product listing
-│   │   ├── Header/          # Header component
-│   │   ├── Sidebar/         # Sidebar navigation
-│   │   ├── Footer/          # Footer component
-│   │   └── ...
-│   ├── pages/               # Page components
-│   │   ├── Dashboard.jsx
-│   │   ├── Products.jsx
-│   │   ├── Orders.jsx
-│   │   ├── Categories.jsx
-│   │   └── LoginSignup.jsx
-│   ├── services/            # API services
-│   │   ├── api.js
-│   │   ├── authService.js
-│   │   ├── productService.js
-│   │   ├── orderService.js
-│   │   └── categoryService.js
-│   ├── utils/               # Utility functions
-│   └── data/                # Mock data (deprecated)
-├── public/                  # Static assets
-└── ...
-
-backend/
-├── controllers/             # Route controllers
-├── models/                  # Mongoose models
-├── utils/                   # Utilities (auth, middleware)
-└── ...
-```
-
-## 🎨 Design System
-
-- **Font**: Poppins (Google Fonts)
-- **Colors**: 
-  - Primary: Emerald (#10b981)
-  - Status: Yellow (#fbbf24), Blue (#3b82f6), Purple (#8b5cf6), Green (#10b981), Red (#ef4444)
-- **Spacing**: Tailwind spacing scale
-- **Components**: Consistent styling across all modules
-
-## 🐛 Known Issues
-
-- ~~Dropdown menus bị cắt bởi table overflow~~ ✅ Đã fix (v0.2.0)
-- ~~Product count không khớp giữa client và server~~ ✅ Đã fix (v0.2.0)
-- ~~Dropdown position khi scroll~~ ✅ Đã fix với fixed positioning (v0.2.0)
-
-## 📝 Changelog
-
-### Version 0.2.0 (Current)
-- ✅ Hoàn thành tích hợp backend API
-- ✅ Implement pagination cho tất cả list views
-- ✅ Fix dropdown positioning với portal-like rendering
-- ✅ Standardize UI/UX across all modules
-- ✅ Add USD currency formatting
-- ✅ Improve dropdown menus (Order Status, Payment Status, Actions)
-
-### Version 0.1.0
-- ✅ Initial project setup
-- ✅ Basic component structure
-- ✅ Mock data implementation
-- ✅ Authentication flow
-- ✅ Dashboard layout
-
-## 👥 Contributing
-
-Dự án đang trong giai đoạn phát triển. Vui lòng liên hệ để biết thêm thông tin về việc đóng góp.
-
-## 📄 License
-
-Private project - All rights reserved
-
-## 📞 Contact
-
-- Repository: [mini-store](https://github.com/PhatNguyenTT2/mini-store)
-- Branch: main
+## Tổng Quan
+Hệ thống quản lý bán hàng sử dụng MongoDB với 11 collections chính để quản lý toàn bộ quy trình kinh doanh từ quản lý sản phẩm, khách hàng, đơn hàng, kho hàng, nhà cung cấp đến thanh toán và báo cáo.
 
 ---
 
-**Last Updated**: October 9, 2025  
-**Version**: 0.2.0  
-**Status**: 🚧 In Development
+## 1. Model: User (Người dùng)
+**Collection**: `users`
+
+### Mục đích
+Quản lý thông tin người dùng hệ thống (admin, nhân viên)
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `userCode` | String | ✓ | Mã người dùng (USER001, USER002...) |
+| `username` | String | ✓ | Tên đăng nhập (3-20 ký tự, unique) |
+| `email` | String | ✓ | Email (unique, lowercase) |
+| `fullName` | String | ✓ | Họ tên đầy đủ (3-50 ký tự) |
+| `passwordHash` | String | ✓ | Mật khẩu đã mã hóa (min 6 ký tự) |
+| `role` | ObjectId | ✓ | Tham chiếu đến Role |
+| `department` | ObjectId |  | Tham chiếu đến Department |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `tokens` | Array |  | Danh sách token xác thực (expires sau 7 ngày) |
+| `resetPasswordToken` | String |  | Token reset mật khẩu |
+| `resetPasswordExpire` | Date |  | Thời gian hết hạn token |
+| `lastLogin` | Date |  | Lần đăng nhập cuối |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Indexes
+- `userCode`, `username`, `email` (unique)
+- `isActive`, `role`, `department`
+
+### Relationships
+- **Thuộc về**: 1 Role (Many-to-One)
+- **Thuộc về**: 1 Department (Many-to-One)
+- **Quản lý**: Nhiều Orders, PurchaseOrders, Payments
+
+---
+
+## 2. Model: Role (Vai trò)
+**Collection**: `roles`
+
+### Mục đích
+Định nghĩa các vai trò và quyền hạn trong hệ thống
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `roleId` | String | ✓ | Mã vai trò (ADMIN, MANAGER..., uppercase, 2-20 ký tự) |
+| `roleName` | String | ✓ | Tên vai trò (2-50 ký tự) |
+| `description` | String |  | Mô tả vai trò (max 200 ký tự) |
+| `permissions` | Array[String] |  | Danh sách quyền hạn |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Indexes
+- `roleId` (unique)
+- `isActive`
+
+### Relationships
+- **Có**: Nhiều Users (One-to-Many)
+
+---
+
+## 3. Model: Department (Phòng ban)
+**Collection**: `departments`
+
+### Mục đích
+Quản lý thông tin các phòng ban trong công ty
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `departmentId` | String | ✓ | Mã phòng ban (uppercase, 2-20 ký tự, unique) |
+| `departmentName` | String | ✓ | Tên phòng ban (2-100 ký tự) |
+| `description` | String |  | Mô tả (max 300 ký tự) |
+| `manager` | ObjectId |  | Tham chiếu đến User (Trưởng phòng) |
+| `location` | String |  | Địa điểm (max 100 ký tự) |
+| `phone` | String |  | Số điện thoại (10-15 số) |
+| `email` | String |  | Email phòng ban |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Indexes
+- `departmentId` (unique)
+- `isActive`, `manager`
+
+### Relationships
+- **Quản lý bởi**: 1 User (One-to-One với manager)
+- **Có**: Nhiều Users (One-to-Many)
+
+---
+
+## 4. Model: Category (Danh mục sản phẩm)
+**Collection**: `categories`
+
+### Mục đích
+Phân loại sản phẩm theo danh mục
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `name` | String | ✓ | Tên danh mục (max 100 ký tự, unique) |
+| `slug` | String | Auto | URL-friendly name (unique, lowercase) |
+| `image` | String |  | URL ảnh danh mục |
+| `description` | String |  | Mô tả danh mục (max 500 ký tự) |
+| `parent` | ObjectId |  | Danh mục cha (cho danh mục con) |
+| `order` | Number |  | Thứ tự hiển thị (default: 0) |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `productCount`: Số lượng sản phẩm trong danh mục
+
+### Indexes
+- `name`, `slug` (unique)
+
+### Relationships
+- **Cha của**: Nhiều Categories con (Self-referencing)
+- **Con của**: 1 Category cha (Self-referencing)
+- **Chứa**: Nhiều Products (One-to-Many)
+
+---
+
+## 5. Model: Product (Sản phẩm)
+**Collection**: `products`
+
+### Mục đích
+Quản lý thông tin chi tiết về sản phẩm
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `name` | String | ✓ | Tên sản phẩm (max 255 ký tự) |
+| `slug` | String | Auto | URL-friendly name (unique, lowercase) |
+| `sku` | String | ✓ | Mã SKU (unique, uppercase) |
+| `category` | ObjectId | ✓ | Tham chiếu đến Category |
+| `costPrice` | Number | ✓ | Giá vốn (≥ 0) |
+| `price` | Number | ✓ | Giá bán (> 0) |
+| `originalPrice` | Number |  | Giá gốc (trước giảm giá) |
+| `image` | String | ✓ | URL ảnh chính |
+| `images` | Array[String] |  | Danh sách URL ảnh phụ |
+| `description` | String |  | Mô tả ngắn (max 2000 ký tự) |
+| `detailDescription` | Object |  | Mô tả chi tiết (JSON) |
+| `detailDescription.intro` | Array[String] |  | Giới thiệu |
+| `detailDescription.specifications` | Array |  | Thông số kỹ thuật |
+| `detailDescription.additionalDesc` | String |  | Mô tả bổ sung |
+| `detailDescription.packaging` | Array[String] |  | Thông tin đóng gói |
+| `detailDescription.suggestedUse` | Array[String] |  | Cách sử dụng |
+| `detailDescription.otherIngredients` | Array[String] |  | Thành phần khác |
+| `detailDescription.warnings` | Array[String] |  | Cảnh báo |
+| `vendor` | String | ✓ | Nhà cung cấp/thương hiệu |
+| `stock` | Number | ✓ | Số lượng tồn kho (≥ 0) |
+| `isInStock` | Boolean | Auto | Còn hàng (stock > 0) |
+| `rating` | Number |  | Đánh giá (0-5, default: 0) |
+| `reviewCount` | Number |  | Số lượt đánh giá (≥ 0) |
+| `type` | String |  | Loại sản phẩm |
+| `tags` | Array[String] |  | Thẻ tag |
+| `mfgDate` | Date |  | Ngày sản xuất |
+| `shelfLife` | String |  | Hạn sử dụng |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `isFeatured` | Boolean |  | Sản phẩm nổi bật (default: false) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `discountPercent`: Phần trăm giảm giá
+- `profitMargin`: Tỷ suất lợi nhuận (%)
+- `profitAmount`: Lợi nhuận trên mỗi sản phẩm
+
+### Indexes
+- `sku`, `slug` (unique)
+- Text index: `name`, `description`, `tags`
+- Compound: `category`, `price`
+
+### Relationships
+- **Thuộc về**: 1 Category (Many-to-One)
+- **Có**: 1 Inventory record (One-to-One)
+- **Xuất hiện trong**: Nhiều Orders (Many-to-Many)
+- **Xuất hiện trong**: Nhiều PurchaseOrders (Many-to-Many)
+
+---
+
+## 6. Model: Customer (Khách hàng)
+**Collection**: `customers`
+
+### Mục đích
+Quản lý thông tin khách hàng và lịch sử mua hàng
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `customerCode` | String | Auto | Mã khách hàng (CUST2025000001...) |
+| `fullName` | String | ✓ | Họ tên đầy đủ |
+| `email` | String |  | Email (unique, sparse - cho phép null) |
+| `phone` | String | ✓ | Số điện thoại |
+| `address` | Object |  | Địa chỉ chi tiết |
+| `address.street` | String |  | Đường |
+| `address.city` | String |  | Thành phố |
+| `address.state` | String |  | Tỉnh/Bang |
+| `address.zipCode` | String |  | Mã bưu điện |
+| `address.country` | String |  | Quốc gia (default: Vietnam) |
+| `dateOfBirth` | Date |  | Ngày sinh |
+| `gender` | String |  | Giới tính (male/female/other) |
+| `customerType` | String |  | Loại KH (retail/wholesale/vip, default: retail) |
+| `loyaltyPoints` | Number |  | Điểm thành viên (≥ 0, default: 0) |
+| `totalPurchases` | Number |  | Tổng số đơn hàng (≥ 0, default: 0) |
+| `totalSpent` | Number |  | Tổng tiền đã chi (≥ 0, default: 0) |
+| `notes` | String |  | Ghi chú |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `orders`: Danh sách đơn hàng của khách hàng
+
+### Methods
+- `addLoyaltyPoints(points)`: Thêm điểm thưởng
+- `redeemLoyaltyPoints(points)`: Đổi điểm thưởng
+- `updatePurchaseStats(orderTotal)`: Cập nhật thống kê mua hàng (tự động nâng cấp loại KH)
+
+### Indexes
+- `customerCode`, `email` (unique)
+- `phone`, `customerType`, `isActive`
+
+### Business Rules
+- Tự động nâng cấp: 
+  - VIP: totalSpent ≥ 50,000,000đ
+  - Wholesale: totalSpent ≥ 20,000,000đ
+
+### Relationships
+- **Có**: Nhiều Orders (One-to-Many)
+
+---
+
+## 7. Model: Order (Đơn hàng)
+**Collection**: `orders`
+
+### Mục đích
+Quản lý đơn hàng bán lẻ
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `orderNumber` | String | Auto | Mã đơn hàng (ORD2501000001...) |
+| `customer` | Object | ✓ | Thông tin khách hàng |
+| `customer.name` | String | ✓ | Tên khách hàng |
+| `customer.email` | String | ✓ | Email khách hàng |
+| `customer.phone` | String | ✓ | SĐT khách hàng |
+| `user` | ObjectId |  | Tham chiếu đến User (nếu KH có tài khoản) |
+| `deliveryType` | String |  | Loại giao hàng (delivery/pickup, default: delivery) |
+| `shippingAddress` | Object |  | Địa chỉ giao hàng (bắt buộc nếu delivery) |
+| `shippingAddress.street` | String |  | Đường |
+| `shippingAddress.city` | String |  | Thành phố |
+| `shippingAddress.state` | String |  | Tỉnh/Bang |
+| `shippingAddress.zipCode` | String |  | Mã bưu điện |
+| `shippingAddress.country` | String |  | Quốc gia (default: Vietnam) |
+| `items` | Array | ✓ | Danh sách sản phẩm |
+| `items[].product` | ObjectId | ✓ | Tham chiếu đến Product |
+| `items[].productName` | String |  | Tên sản phẩm (cached) |
+| `items[].productImage` | String |  | Ảnh sản phẩm (cached) |
+| `items[].price` | Number | ✓ | Giá bán |
+| `items[].quantity` | Number | ✓ | Số lượng (≥ 1) |
+| `items[].subtotal` | Number | ✓ | Thành tiền |
+| `subtotal` | Number | ✓ | Tổng tiền hàng |
+| `shippingFee` | Number |  | Phí vận chuyển (default: 0) |
+| `tax` | Number |  | Thuế (default: 0) |
+| `discount` | Number |  | Giảm giá (default: 0) |
+| `discountType` | String |  | Loại giảm giá (none/retail/wholesale/vip) |
+| `discountPercentage` | Number |  | % giảm giá (default: 0) |
+| `total` | Number | ✓ | Tổng thanh toán |
+| `paymentMethod` | String |  | PT thanh toán (cash/card/bank_transfer/e_wallet) |
+| `paymentStatus` | String |  | Trạng thái TT (pending/paid/failed/refunded) |
+| `paidAt` | Date |  | Thời gian thanh toán |
+| `status` | String |  | Trạng thái ĐH (pending/processing/shipping/delivered/cancelled) |
+| `trackingNumber` | String |  | Mã vận đơn |
+| `processingAt` | Date |  | Thời gian xử lý |
+| `shippedAt` | Date |  | Thời gian giao hàng |
+| `deliveredAt` | Date |  | Thời gian hoàn thành |
+| `cancelledAt` | Date |  | Thời gian hủy |
+| `customerNote` | String |  | Ghi chú của KH |
+| `adminNote` | String |  | Ghi chú nội bộ |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Indexes
+- `orderNumber` (unique)
+- `user` + `createdAt` (compound)
+- `status`
+
+### Relationships
+- **Thuộc về**: 1 Customer (Many-to-One)
+- **Chứa**: Nhiều Products (Many-to-Many thông qua items)
+- **Có**: 1 Payment (One-to-One)
+
+---
+
+## 8. Model: Payment (Thanh toán)
+**Collection**: `payments`
+
+### Mục đích
+Quản lý giao dịch thanh toán (bán hàng và mua hàng)
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `paymentNumber` | String | Auto | Mã thanh toán (PAY2025000001...) |
+| `paymentType` | String | ✓ | Loại thanh toán (sales/purchase) |
+| `relatedOrderId` | ObjectId | ✓ | ID đơn hàng/PO liên quan |
+| `relatedOrderNumber` | String |  | Số đơn hàng (cached) |
+| `amount` | Number | ✓ | Số tiền (≥ 0) |
+| `paymentMethod` | String | ✓ | PT thanh toán (cash/card/bank_transfer/e_wallet/check/credit) |
+| `paymentDate` | Date |  | Ngày thanh toán (default: now) |
+| `transactionId` | String |  | Mã giao dịch |
+| `bankReference` | String |  | Mã tham chiếu ngân hàng |
+| `cardLastFourDigits` | String |  | 4 số cuối thẻ |
+| `status` | String |  | Trạng thái (pending/completed/failed/refunded/cancelled) |
+| `refundedAmount` | Number |  | Số tiền đã hoàn (≥ 0, default: 0) |
+| `refundReason` | String |  | Lý do hoàn tiền |
+| `refundedAt` | Date |  | Thời gian hoàn tiền |
+| `customer` | ObjectId |  | Tham chiếu đến Customer (cho sales) |
+| `supplier` | ObjectId |  | Tham chiếu đến Supplier (cho purchase) |
+| `receivedBy` | ObjectId | ✓ | User xử lý thanh toán |
+| `notes` | String |  | Ghi chú |
+| `attachments` | Array |  | File đính kèm |
+| `attachments[].filename` | String |  | Tên file |
+| `attachments[].url` | String |  | URL file |
+| `attachments[].uploadedAt` | Date |  | Thời gian upload |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `netAmount`: Số tiền thực (amount - refundedAmount)
+
+### Methods
+- `processRefund(amount, reason)`: Xử lý hoàn tiền
+- `cancel(reason)`: Hủy thanh toán
+- `markAsFailed(reason)`: Đánh dấu thất bại
+
+### Indexes
+- `paymentNumber` (unique)
+- `paymentType`, `relatedOrderId`, `status`, `paymentDate`
+- `customer`, `supplier`
+
+### Relationships
+- **Liên quan đến**: 1 Order HOẶC 1 PurchaseOrder
+- **Thuộc về**: 1 Customer (nếu sales)
+- **Thuộc về**: 1 Supplier (nếu purchase)
+- **Xử lý bởi**: 1 User
+
+---
+
+## 9. Model: Supplier (Nhà cung cấp)
+**Collection**: `suppliers`
+
+### Mục đích
+Quản lý thông tin nhà cung cấp
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `supplierCode` | String | Auto | Mã NCC (SUP2025000001...) |
+| `companyName` | String | ✓ | Tên công ty |
+| `contactPerson` | Object |  | Người liên hệ |
+| `contactPerson.name` | String |  | Tên |
+| `contactPerson.position` | String |  | Chức vụ |
+| `contactPerson.phone` | String |  | SĐT |
+| `contactPerson.email` | String |  | Email |
+| `email` | String | ✓ | Email công ty (unique) |
+| `phone` | String | ✓ | SĐT công ty |
+| `address` | Object |  | Địa chỉ |
+| `address.street` | String |  | Đường |
+| `address.city` | String |  | Thành phố |
+| `address.state` | String |  | Tỉnh/Bang |
+| `address.zipCode` | String |  | Mã bưu điện |
+| `address.country` | String |  | Quốc gia (default: Vietnam) |
+| `taxId` | String |  | Mã số thuế (unique, sparse) |
+| `bankAccount` | Object |  | Thông tin ngân hàng |
+| `bankAccount.bankName` | String |  | Tên ngân hàng |
+| `bankAccount.accountNumber` | String |  | Số tài khoản |
+| `bankAccount.accountName` | String |  | Tên tài khoản |
+| `bankAccount.swiftCode` | String |  | Mã SWIFT |
+| `paymentTerms` | String |  | Điều khoản TT (cod/net15/net30/net60/net90, default: net30) |
+| `creditLimit` | Number |  | Hạn mức tín dụng (≥ 0, default: 0) |
+| `currentDebt` | Number |  | Công nợ hiện tại (≥ 0, default: 0) |
+| `productsSupplied` | Array[ObjectId] |  | Danh sách sản phẩm cung cấp |
+| `rating` | Number |  | Đánh giá (0-5, default: 0) |
+| `totalPurchaseOrders` | Number |  | Tổng số PO (≥ 0, default: 0) |
+| `totalPurchaseAmount` | Number |  | Tổng giá trị mua (≥ 0, default: 0) |
+| `notes` | String |  | Ghi chú |
+| `isActive` | Boolean |  | Trạng thái hoạt động (default: true) |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `purchaseOrders`: Danh sách đơn đặt hàng
+
+### Methods
+- `updateRating(newRating)`: Cập nhật đánh giá
+- `updatePurchaseStats(orderTotal)`: Cập nhật thống kê mua hàng
+- `addDebt(amount)`: Thêm công nợ
+- `payDebt(amount)`: Thanh toán công nợ
+
+### Indexes
+- `supplierCode`, `email`, `taxId` (unique)
+- `companyName`, `isActive`
+
+### Relationships
+- **Cung cấp**: Nhiều Products (Many-to-Many)
+- **Có**: Nhiều PurchaseOrders (One-to-Many)
+- **Có**: Nhiều Payments (One-to-Many)
+
+---
+
+## 10. Model: PurchaseOrder (Đơn đặt hàng)
+**Collection**: `purchaseorders`
+
+### Mục đích
+Quản lý đơn đặt hàng từ nhà cung cấp
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `poNumber` | String | Auto | Mã PO (PO2025000001...) |
+| `supplier` | ObjectId | ✓ | Tham chiếu đến Supplier |
+| `orderDate` | Date |  | Ngày đặt hàng (default: now) |
+| `expectedDeliveryDate` | Date |  | Ngày giao dự kiến |
+| `actualDeliveryDate` | Date |  | Ngày giao thực tế |
+| `items` | Array | ✓ | Danh sách sản phẩm |
+| `items[].product` | ObjectId | ✓ | Tham chiếu đến Product |
+| `items[].productName` | String |  | Tên sản phẩm (cached) |
+| `items[].sku` | String |  | SKU (cached) |
+| `items[].quantity` | Number | ✓ | Số lượng (≥ 1) |
+| `items[].unitPrice` | Number | ✓ | Đơn giá (≥ 0) |
+| `items[].subtotal` | Number |  | Thành tiền |
+| `items[].received` | Number |  | Đã nhận (≥ 0, default: 0) |
+| `subtotal` | Number |  | Tổng tiền hàng (≥ 0, default: 0) |
+| `shippingFee` | Number |  | Phí vận chuyển (≥ 0, default: 0) |
+| `tax` | Number |  | Thuế (≥ 0, default: 0) |
+| `discount` | Number |  | Giảm giá (≥ 0, default: 0) |
+| `total` | Number |  | Tổng thanh toán (≥ 0, default: 0) |
+| `status` | String |  | Trạng thái (pending/approved/received/cancelled) |
+| `paymentStatus` | String |  | Trạng thái TT (unpaid/partial/paid, default: unpaid) |
+| `paidAmount` | Number |  | Đã thanh toán (≥ 0, default: 0) |
+| `createdBy` | ObjectId | ✓ | User tạo đơn |
+| `approvedBy` | ObjectId |  | User phê duyệt |
+| `approvedAt` | Date |  | Thời gian phê duyệt |
+| `receivedBy` | ObjectId |  | User nhận hàng |
+| `notes` | String |  | Ghi chú |
+| `attachments` | Array |  | File đính kèm |
+| `attachments[].filename` | String |  | Tên file |
+| `attachments[].url` | String |  | URL file |
+| `attachments[].uploadedAt` | Date |  | Thời gian upload |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Methods
+- `approve(userId)`: Phê duyệt đơn hàng
+- `receiveItems(receivedItems, userId)`: Nhận hàng (cập nhật inventory)
+- `cancel()`: Hủy đơn hàng
+- `addPayment(amount)`: Thêm thanh toán
+
+### Indexes
+- `poNumber` (unique)
+- `supplier`, `status`, `paymentStatus`, `orderDate`
+
+### Relationships
+- **Thuộc về**: 1 Supplier (Many-to-One)
+- **Chứa**: Nhiều Products (Many-to-Many thông qua items)
+- **Tạo bởi**: 1 User
+- **Phê duyệt bởi**: 1 User
+- **Nhận bởi**: 1 User
+- **Có**: Nhiều Payments (One-to-Many)
+
+---
+
+## 11. Model: Inventory (Tồn kho)
+**Collection**: `inventories`
+
+### Mục đích
+Quản lý tồn kho và lịch sử xuất nhập kho
+
+### Thuộc tính
+
+| Trường | Kiểu | Bắt buộc | Mô tả |
+|--------|------|----------|-------|
+| `product` | ObjectId | ✓ | Tham chiếu đến Product (unique) |
+| `quantityOnHand` | Number |  | Số lượng tồn kho (≥ 0, default: 0) |
+| `quantityReserved` | Number |  | Số lượng đã đặt trước (≥ 0, default: 0) |
+| `quantityAvailable` | Number |  | Số lượng khả dụng (≥ 0, default: 0) |
+| `reorderPoint` | Number |  | Điểm đặt hàng lại (≥ 0, default: 10) |
+| `reorderQuantity` | Number |  | Số lượng đặt lại (≥ 0, default: 50) |
+| `warehouseLocation` | String |  | Vị trí trong kho |
+| `lastRestocked` | Date |  | Lần nhập cuối |
+| `lastSold` | Date |  | Lần bán cuối |
+| `movements` | Array |  | Lịch sử xuất nhập |
+| `movements[].type` | String | ✓ | Loại (in/out/adjustment/reserved/released) |
+| `movements[].quantity` | Number | ✓ | Số lượng |
+| `movements[].adjustmentType` | String |  | Loại điều chỉnh (increase/decrease) |
+| `movements[].reason` | String |  | Lý do |
+| `movements[].referenceId` | String |  | Mã tham chiếu |
+| `movements[].referenceType` | String |  | Loại tham chiếu (order/purchase_order/stock_adjustment/reservation/release/return) |
+| `movements[].date` | Date |  | Ngày (default: now) |
+| `movements[].performedBy` | ObjectId |  | User thực hiện |
+| `movements[].notes` | String |  | Ghi chú |
+| `createdAt` | Date | Auto | Thời gian tạo |
+| `updatedAt` | Date | Auto | Thời gian cập nhật |
+
+### Virtual Fields
+- `isLowStock`: Kiểm tra hết hàng (quantityAvailable ≤ reorderPoint)
+- `turnoverInfo`: Thông tin luân chuyển (số lượng bán 30 ngày, trung bình/ngày)
+
+### Methods
+- `addStock(quantity, reason, referenceId, userId)`: Nhập hàng
+- `removeStock(quantity, reason, referenceId, userId)`: Xuất hàng
+- `reserveStock(quantity, referenceId, userId)`: Đặt trước
+- `releaseStock(quantity, referenceId, userId)`: Hủy đặt trước
+- `adjustStock(newQuantity, reason, userId)`: Điều chỉnh tồn kho
+- `adjustStockIncrease(quantity, reason, referenceId, userId)`: Tăng tồn kho
+
+### Static Methods
+- `getReservedByOrder(orderId)`: Lấy danh sách hàng đặt trước theo đơn hàng
+
+### Indexes
+- `product` (unique)
+- `quantityAvailable`
+- `movements.date` (desc)
+
+### Business Rules
+- `quantityAvailable = quantityOnHand - quantityReserved` (tự động tính)
+
+### Relationships
+- **Của**: 1 Product (One-to-One)
+- **Thao tác bởi**: Nhiều Users (qua movements)
+
+---
+
+## Sơ Đồ Quan Hệ (Entity Relationship)
+
+```
+User ──┬── belongs to ──> Role
+       ├── belongs to ──> Department
+       ├── creates ──────> Order
+       ├── creates ──────> PurchaseOrder
+       └── processes ────> Payment
+
+Category ──┬── contains ──> Product
+           └── has parent ─> Category (self-reference)
+
+Product ──┬── belongs to ──> Category
+          ├── has ─────────> Inventory (1:1)
+          ├── in ──────────> Order (M:N via items)
+          └── in ──────────> PurchaseOrder (M:N via items)
+
+Customer ──> has ────────> Order
+
+Order ──┬── belongs to ──> Customer
+        ├── contains ────> Product (M:N via items)
+        └── has ─────────> Payment (1:1)
+
+Supplier ──┬── supplies ──> Product (M:N)
+           ├── has ──────> PurchaseOrder
+           └── has ──────> Payment
+
+PurchaseOrder ──┬── from ──> Supplier
+                ├── contains > Product (M:N via items)
+                └── has ────> Payment (1:1)
+
+Inventory ──┬── of ──────> Product (1:1)
+            └── tracked by > User (via movements)
+
+Payment ──┬── for ──────> Order (sales) OR PurchaseOrder (purchase)
+          ├── from ─────> Customer (if sales)
+          ├── to ───────> Supplier (if purchase)
+          └── processed > User
+```
+
+---
+
+## Quy Trình Nghiệp Vụ Chính
+
+### 1. Quy trình Bán hàng
+1. Tạo Order (status: pending)
+2. Inventory.reserveStock() - Đặt trước hàng
+3. Xử lý thanh toán → Payment (paymentType: sales)
+4. Cập nhật Order.paymentStatus = paid
+5. Inventory.removeStock() - Xuất kho
+6. Cập nhật Order.status (processing → shipping → delivered)
+7. Customer.updatePurchaseStats() - Cập nhật thống kê KH
+
+### 2. Quy trình Mua hàng
+1. Tạo PurchaseOrder (status: pending)
+2. Phê duyệt: PO.approve() (status: approved)
+3. Nhận hàng: PO.receiveItems() 
+   - Cập nhật items[].received
+   - Product.stock tăng
+   - Inventory.addStock() - Nhập kho
+   - Status: received
+4. Thanh toán → Payment (paymentType: purchase)
+5. PO.addPayment() - Cập nhật paymentStatus
+6. Supplier.updatePurchaseStats() - Cập nhật thống kê NCC
+
+### 3. Quy trình Quản lý Tồn kho
+1. Theo dõi: quantityAvailable, isLowStock
+2. Cảnh báo: quantityAvailable ≤ reorderPoint
+3. Tạo PurchaseOrder với quantity = reorderQuantity
+4. Điều chỉnh: Inventory.adjustStock()
+5. Lịch sử: movements[] tracking
+
+---
+
+## Các Ràng Buộc và Validation
+
+### Unique Constraints
+- User: userCode, username, email
+- Role: roleId
+- Department: departmentId
+- Category: name, slug
+- Product: sku, slug
+- Customer: customerCode, email (sparse)
+- Order: orderNumber
+- Payment: paymentNumber
+- Supplier: supplierCode, email, taxId (sparse)
+- PurchaseOrder: poNumber
+- Inventory: product
+
+### Auto-generated Fields
+- User: tokens.createdAt (expires 7 days)
+- Category: slug (from name)
+- Product: slug (from name), isInStock (from stock)
+- Customer: customerCode (CUST{year}{6-digit})
+- Order: orderNumber (ORD{YY}{MM}{5-digit})
+- Payment: paymentNumber (PAY{year}{6-digit})
+- Supplier: supplierCode (SUP{year}{6-digit})
+- PurchaseOrder: poNumber (PO{year}{6-digit})
+- Inventory: quantityAvailable (onHand - reserved)
+
+### Virtual Fields (Computed)
+- Category: productCount
+- Product: discountPercent, profitMargin, profitAmount
+- Customer: orders
+- Payment: netAmount
+- Supplier: purchaseOrders
+- Inventory: isLowStock, turnoverInfo
+
+### Indexes (Performance)
+- Text Search: Product (name, description, tags)
+- Compound: Product (category + price), Order (user + createdAt)
+- Single: Hầu hết unique fields và foreign keys
+- Descending: Inventory.movements.date
+
+---
+
+## Tổng Kết Số Liệu
+
+| Collection | Ước tính Records | Primary Keys | Foreign Keys | Indexes |
+|-----------|------------------|--------------|--------------|---------|
+| Users | 10-100 | userCode | role, department | 6 |
+| Roles | 5-20 | roleId | - | 2 |
+| Departments | 5-50 | departmentId | manager | 3 |
+| Categories | 20-200 | _id | parent | 2 |
+| Products | 1,000-100,000 | sku | category | 5 |
+| Customers | 100-100,000 | customerCode | - | 5 |
+| Orders | 1,000-1,000,000 | orderNumber | user, products | 3 |
+| Payments | 1,000-1,000,000 | paymentNumber | orders/POs, customer, supplier | 7 |
+| Suppliers | 10-1,000 | supplierCode | products | 4 |
+| PurchaseOrders | 100-10,000 | poNumber | supplier, products | 5 |
+| Inventories | 1,000-100,000 | product | product | 3 |
+
+**Tổng cộng**: 11 Collections, ~45 Indexes
+
+---
+
+## Notes cho Thiết Kế Database
+
+1. **MongoDB Schema Design**: Sử dụng embedded documents cho:
+   - Order.items[], PurchaseOrder.items[] (tránh populate nhiều)
+   - Customer.address, Supplier.address (dữ liệu liên kết chặt)
+   - Inventory.movements[] (audit trail)
+
+2. **Denormalization**: Cache dữ liệu thường dùng:
+   - Order: customer info, productName, productImage
+   - PurchaseOrder: productName, sku
+   - Payment: relatedOrderNumber
+
+3. **Indexing Strategy**:
+   - Unique indexes cho business keys
+   - Compound indexes cho queries phổ biến
+   - Text indexes cho search features
+   - TTL index cho tokens (auto-expire)
+
+4. **Data Integrity**:
+   - Pre-save hooks: auto-generate codes, calculate totals
+   - Methods: business logic encapsulation
+   - Validation: required fields, enums, min/max
+   - Transactions: cho các thao tác multi-collection
+
+5. **Performance Optimization**:
+   - Virtuals thay vì stored computed fields
+   - Sparse indexes cho optional unique fields
+   - Pagination cho large datasets
+   - Aggregation pipelines cho reports
+
+6. **Security**:
+   - passwordHash không bao giờ trả về trong JSON
+   - tokens array bảo mật
+   - Soft delete với isActive flag
+
+---
+
+## Changelog
+- **v1.0** (2025-01-20): Khởi tạo database design với 11 models
