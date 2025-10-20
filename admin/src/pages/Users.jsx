@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
 import { Breadcrumb } from '../components/Breadcrumb';
-import { UserListHeader, UserList } from '../components/UserList';
+import { UserListHeader, UserList, AddUserModal, EditUserModal, ResetPasswordModal } from '../components/UserList';
 import userService from '../services/userService';
 
 const Users = () => {
@@ -34,6 +34,17 @@ const Users = () => {
   // Sort state
   const [sortField, setSortField] = useState('userCode');
   const [sortOrder, setSortOrder] = useState('asc');
+
+  // Add user modal state
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+
+  // Edit user modal state
+  const [editUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState(null);
+
+  // Reset password modal state
+  const [resetPasswordModalOpen, setResetPasswordModalOpen] = useState(false);
+  const [selectedUserForReset, setSelectedUserForReset] = useState(null);
 
   // Fetch users from API
   const fetchUsers = async () => {
@@ -159,8 +170,48 @@ const Users = () => {
 
   // Handle add user
   const handleAddUser = () => {
-    console.log('Add new user clicked');
-    alert('Add User functionality will be implemented soon!');
+    console.log('Opening add user modal');
+    setAddUserModalOpen(true);
+  };
+
+  // Handle user created successfully
+  const handleUserCreated = (newUser) => {
+    console.log('New user created:', newUser);
+    setAddUserModalOpen(false);
+    // Refresh users list
+    fetchUsers();
+  };
+
+  // Handle edit user
+  const handleEditUser = (user) => {
+    console.log('Opening edit user modal for user:', user);
+    setSelectedUserForEdit(user);
+    setEditUserModalOpen(true);
+  };
+
+  // Handle user updated successfully
+  const handleUserUpdated = () => {
+    console.log('User updated successfully');
+    setEditUserModalOpen(false);
+    setSelectedUserForEdit(null);
+    // Refresh users list
+    fetchUsers();
+  };
+
+  // Handle reset password
+  const handleResetPassword = (user) => {
+    console.log('Opening reset password modal for user:', user);
+    setSelectedUserForReset(user);
+    setResetPasswordModalOpen(true);
+  };
+
+  // Handle password reset successfully
+  const handlePasswordResetSuccess = () => {
+    console.log('Password reset successfully');
+    setResetPasswordModalOpen(false);
+    setSelectedUserForReset(null);
+    // Optionally refresh users list
+    fetchUsers();
   };
 
   return (
@@ -209,6 +260,8 @@ const Users = () => {
               onSort={handleColumnSort}
               sortField={sortField}
               sortOrder={sortOrder}
+              onResetPassword={handleResetPassword}
+              onEditUser={handleEditUser}
             />
 
             {/* Pagination */}
@@ -220,8 +273,8 @@ const Users = () => {
                     onClick={() => setFilters({ ...filters, page: pagination.current_page - 1 })}
                     disabled={!pagination.has_prev}
                     className={`px-3 py-2 rounded transition-colors text-[12px] font-['Poppins',sans-serif] ${!pagination.has_prev
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-[#3bb77e] hover:bg-[#def9ec]'
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-[#3bb77e] hover:bg-[#def9ec]'
                       }`}
                   >
                     ‹ Previous
@@ -269,8 +322,8 @@ const Users = () => {
                           key={page}
                           onClick={() => setFilters({ ...filters, page })}
                           className={`px-3 py-2 rounded transition-colors text-[12px] font-['Poppins',sans-serif] ${currentPage === page
-                              ? 'bg-[#3bb77e] text-white'
-                              : 'text-[#3bb77e] hover:bg-[#def9ec]'
+                            ? 'bg-[#3bb77e] text-white'
+                            : 'text-[#3bb77e] hover:bg-[#def9ec]'
                             }`}
                         >
                           {page}
@@ -306,8 +359,8 @@ const Users = () => {
                     onClick={() => setFilters({ ...filters, page: pagination.current_page + 1 })}
                     disabled={!pagination.has_next}
                     className={`px-3 py-2 rounded transition-colors text-[12px] font-['Poppins',sans-serif] ${!pagination.has_next
-                        ? 'text-gray-400 cursor-not-allowed'
-                        : 'text-[#3bb77e] hover:bg-[#def9ec]'
+                      ? 'text-gray-400 cursor-not-allowed'
+                      : 'text-[#3bb77e] hover:bg-[#def9ec]'
                       }`}
                   >
                     Next ›
@@ -336,6 +389,35 @@ const Users = () => {
           </>
         )}
       </div>
+
+      {/* Add User Modal */}
+      <AddUserModal
+        isOpen={addUserModalOpen}
+        onClose={() => setAddUserModalOpen(false)}
+        onSuccess={handleUserCreated}
+      />
+
+      {/* Edit User Modal */}
+      <EditUserModal
+        isOpen={editUserModalOpen}
+        onClose={() => {
+          setEditUserModalOpen(false);
+          setSelectedUserForEdit(null);
+        }}
+        user={selectedUserForEdit}
+        onSuccess={handleUserUpdated}
+      />
+
+      {/* Reset Password Modal */}
+      <ResetPasswordModal
+        isOpen={resetPasswordModalOpen}
+        onClose={() => {
+          setResetPasswordModalOpen(false);
+          setSelectedUserForReset(null);
+        }}
+        user={selectedUserForReset}
+        onPasswordReset={handlePasswordResetSuccess}
+      />
     </Layout>
   );
 };

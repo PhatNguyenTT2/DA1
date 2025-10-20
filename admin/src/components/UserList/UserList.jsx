@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export const UserList = ({ users = [], onActiveChange, onSort, sortField, sortOrder }) => {
+export const UserList = ({ users = [], onActiveChange, onSort, sortField, sortOrder, onResetPassword, onEditUser }) => {
   const [activeDropdown, setActiveDropdown] = useState(null); // Format: 'active-{userId}', 'action-{userId}'
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef(null);
@@ -376,21 +376,9 @@ export const UserList = ({ users = [], onActiveChange, onSort, sortField, sortOr
             >
               <button
                 onClick={() => {
-                  console.log('View user:', user.id);
-                  setActiveDropdown(null);
-                }}
-                className="w-full px-4 py-2 text-left text-[12px] font-['Poppins',sans-serif] text-gray-700 hover:bg-emerald-50 hover:text-emerald-600 transition-colors flex items-center gap-2"
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 8C1 8 3.54545 3 8 3C12.4545 3 15 8 15 8C15 8 12.4545 13 8 13C3.54545 13 1 8 1 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                View Details
-              </button>
-
-              <button
-                onClick={() => {
-                  console.log('Edit user:', user.id);
+                  if (onEditUser) {
+                    onEditUser(user);
+                  }
                   setActiveDropdown(null);
                 }}
                 className="w-full px-4 py-2 text-left text-[12px] font-['Poppins',sans-serif] text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-2"
@@ -401,11 +389,11 @@ export const UserList = ({ users = [], onActiveChange, onSort, sortField, sortOr
                 Edit
               </button>
 
-              <div className="border-t border-gray-200 my-1"></div>
-
               <button
                 onClick={() => {
-                  console.log('Reset password:', user.id);
+                  if (onResetPassword) {
+                    onResetPassword(user);
+                  }
                   setActiveDropdown(null);
                 }}
                 className="w-full px-4 py-2 text-left text-[12px] font-['Poppins',sans-serif] text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-colors flex items-center gap-2"

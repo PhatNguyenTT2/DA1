@@ -13,15 +13,15 @@ const generateUserCode = async () => {
     .select('userCode')
 
   if (!lastUser || !lastUser.userCode) {
-    return 'EMP001'
+    return 'USER001'
   }
 
-  // Extract number from userCode (e.g., EMP001 -> 1)
-  const lastNumber = parseInt(lastUser.userCode.substring(3))
+  // Extract number from userCode (e.g., USER001 -> 1)
+  const lastNumber = parseInt(lastUser.userCode.substring(4))
   const newNumber = lastNumber + 1
 
-  // Format with leading zeros (e.g., 1 -> EMP001, 25 -> EMP025)
-  return `EMP${String(newNumber).padStart(3, '0')}`
+  // Format with leading zeros (e.g., 1 -> USER001, 25 -> USER025)
+  return `USER${String(newNumber).padStart(3, '0')}`
 }
 
 // GET /api/users - Get all users (Admin only)
@@ -455,7 +455,59 @@ usersRouter.patch('/:id/department', userExtractor, isAdmin, async (request, res
   }
 })
 
-// DELETE /api/users/:id - Delete user (Admin only)
+// POST /api/users/:id/reset-password - Reset user password (Admin only)
+usersRouter.post('/:id/reset-password', userExtractor, isAdmin, async (request, response) => {
+  const { newPassword } = request.body
+
+  // Validation
+  if (!newPassword) {
+    return response.status(400).json({
+      error: 'New password is required'
+    })
+  }
+
+  if (newPassword.length < 6) {
+    return response.status(400).json({
+      error: 'Password must be at least 6 characters long'
+    })
+  }
+
+  try {
+    const user = await User.findById(request.params.id)
+
+    if (!user) {
+      return response.status(404).json({
+        error: 'User not found'
+      })
+    }
+
+    // Hash new password
+    const saltRounds = 10
+    user.passwordHash = await bcrypt.hash(newPassword, saltRounds)
+
+    // Clear all tokens to force re-login
+    user.tokens = []
+
+    await user.save()
+
+    response.status(200).json({
+      success: true,
+      message: 'Password reset successfully',
+      data: {
+        username: user.username
+      }
+    })
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return response.status(400).json({
+        error: 'Invalid user ID'
+      })
+    }
+    response.status(500).json({
+      error: 'Failed to reset password'
+    })
+  }
+})// DELETE /api/users/:id - Delete user (Admin only)
 usersRouter.delete('/:id', userExtractor, isAdmin, async (request, response) => {
   try {
     const user = await User.findById(request.params.id)

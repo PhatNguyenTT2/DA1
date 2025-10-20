@@ -14,15 +14,15 @@ const generateUserCode = async () => {
     .select('userCode')
 
   if (!lastUser || !lastUser.userCode) {
-    return 'EMP001'
+    return 'USER001'
   }
 
-  // Extract number from userCode (e.g., EMP001 -> 1)
-  const lastNumber = parseInt(lastUser.userCode.substring(3))
+  // Extract number from userCode (e.g., USER001 -> 1)
+  const lastNumber = parseInt(lastUser.userCode.substring(4))
   const newNumber = lastNumber + 1
 
-  // Format with leading zeros (e.g., 1 -> EMP001, 25 -> EMP025)
-  return `EMP${String(newNumber).padStart(3, '0')}`
+  // Format with leading zeros (e.g., 1 -> USER001, 25 -> USER025)
+  return `USER${String(newNumber).padStart(3, '0')}`
 }
 
 // Helper: Generate JWT token

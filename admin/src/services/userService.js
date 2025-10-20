@@ -100,11 +100,12 @@ const userService = {
   /**
    * Reset user password (Admin only)
    * @param {string} id - User ID
+   * @param {string} newPassword - New password
    * @returns {Promise} Reset confirmation
    */
-  resetPassword: async (id) => {
+  resetPassword: async (id, newPassword) => {
     try {
-      const response = await api.post(`/users/${id}/reset-password`)
+      const response = await api.post(`/users/${id}/reset-password`, { newPassword })
       return response.data
     } catch (error) {
       console.error(`Error resetting password for user ${id}:`, error)

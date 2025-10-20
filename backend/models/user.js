@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     uppercase: true,
     trim: true,
-    match: [/^EMP\d{3,}$/, 'User code must follow format EMP001, EMP002, etc.']
+    match: [/^USER\d{3,}$/, 'User code must follow format USER001, USER002, etc.']
   },
   username: {
     type: String,
