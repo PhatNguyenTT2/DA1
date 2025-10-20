@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
+export const ViewPurchaseDetailsModal = ({ product, purchaseOrders, onClose }) => {
   if (!product) return null;
 
   return (
@@ -13,10 +13,10 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-blue-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
           <div>
             <h3 className="text-[18px] font-semibold font-['Poppins',sans-serif] text-[#212529]">
-              Sales Details: {product.name}
+              Purchase Details: {product.name}
             </h3>
             <div className="flex items-center gap-4 mt-2">
               <p className="text-[12px] text-[#6c757d] font-['Poppins',sans-serif]">
@@ -24,11 +24,11 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
               </p>
               <span className="text-gray-300">|</span>
               <p className="text-[12px] text-[#6c757d] font-['Poppins',sans-serif]">
-                Total Sold: <span className="font-semibold text-blue-600">{product.quantity}</span>
+                Total Purchased: <span className="font-semibold text-purple-600">{product.quantity}</span>
               </p>
               <span className="text-gray-300">|</span>
               <p className="text-[12px] text-[#6c757d] font-['Poppins',sans-serif]">
-                Total Revenue: <span className="font-semibold text-emerald-600">${product.totalAmount?.toFixed(2)}</span>
+                Total Cost: <span className="font-semibold text-blue-600">${product.totalAmount?.toFixed(2)}</span>
               </p>
             </div>
           </div>
@@ -44,15 +44,15 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
 
         {/* Modal Body */}
         <div className="overflow-y-auto max-h-[calc(80vh-180px)]">
-          {orders && orders.length > 0 ? (
+          {purchaseOrders && purchaseOrders.length > 0 ? (
             <table className="w-full">
               <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
-                    Order Number
+                    PO Number
                   </th>
                   <th className="px-6 py-3 text-left text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
-                    Customer
+                    Supplier
                   </th>
                   <th className="px-6 py-3 text-left text-[11px] font-medium font-['Poppins',sans-serif] text-[#212529] uppercase tracking-[0.5px]">
                     Date
@@ -72,14 +72,14 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order, idx) => {
+                {purchaseOrders.map((po, idx) => {
                   // Get status badge color
                   const getStatusColor = (status) => {
                     const statusMap = {
                       pending: 'bg-yellow-100 text-yellow-800',
-                      processing: 'bg-blue-100 text-blue-800',
-                      shipping: 'bg-purple-100 text-purple-800',
-                      delivered: 'bg-green-100 text-green-800',
+                      approved: 'bg-blue-100 text-blue-800',
+                      ordered: 'bg-purple-100 text-purple-800',
+                      received: 'bg-green-100 text-green-800',
                       cancelled: 'bg-red-100 text-red-800',
                     };
                     return statusMap[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
@@ -88,18 +88,18 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
                   return (
                     <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
-                        <p className="text-[13px] font-semibold font-['Poppins',sans-serif] text-emerald-600">
-                          {order.orderNumber}
+                        <p className="text-[13px] font-semibold font-['Poppins',sans-serif] text-blue-600">
+                          {po.poNumber}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529]">
-                          {order.customerName || 'N/A'}
+                          {po.supplierName || 'N/A'}
                         </p>
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#6c757d]">
-                          {new Date(order.orderDate).toLocaleDateString('en-US', {
+                          {new Date(po.orderDate).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
@@ -107,23 +107,23 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
                         </p>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-semibold font-['Poppins',sans-serif] uppercase ${getStatusColor(order.status)}`}>
-                          {order.status}
+                        <span className={`px-2 py-1 rounded-full text-[10px] font-semibold font-['Poppins',sans-serif] uppercase ${getStatusColor(po.status)}`}>
+                          {po.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <p className="text-[13px] font-semibold font-['Poppins',sans-serif] text-blue-600">
-                          {order.quantity}
+                        <p className="text-[13px] font-semibold font-['Poppins',sans-serif] text-purple-600">
+                          {po.quantity}
                         </p>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <p className="text-[13px] font-normal font-['Poppins',sans-serif] text-[#212529]">
-                          ${order.unitPrice?.toFixed(2)}
+                          ${po.unitPrice?.toFixed(2)}
                         </p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <p className="text-[14px] font-semibold font-['Poppins',sans-serif] text-emerald-600">
-                          ${order.subtotal?.toFixed(2)}
+                        <p className="text-[14px] font-semibold font-['Poppins',sans-serif] text-blue-600">
+                          ${po.subtotal?.toFixed(2)}
                         </p>
                       </td>
                     </tr>
@@ -147,7 +147,7 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
                 />
               </svg>
               <p className="mt-4 text-[13px] text-[#6c757d] font-['Poppins',sans-serif]">
-                No order details found for this product
+                No purchase order details found for this product
               </p>
             </div>
           )}
@@ -157,22 +157,22 @@ export const ViewSalesDetailsModal = ({ product, orders, onClose }) => {
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
           <div className="flex justify-between items-center">
             <div className="text-[13px] text-[#6c757d] font-['Poppins',sans-serif]">
-              Total Orders: <span className="font-semibold text-gray-700">{orders?.length || 0}</span>
+              Total Purchase Orders: <span className="font-semibold text-gray-700">{purchaseOrders?.length || 0}</span>
             </div>
             <div className="flex items-center gap-6">
               <div className="text-right">
                 <p className="text-[11px] text-[#6c757d] font-['Poppins',sans-serif] uppercase tracking-[0.5px]">
                   Total Quantity
                 </p>
-                <p className="text-[16px] font-bold font-['Poppins',sans-serif] text-blue-600">
+                <p className="text-[16px] font-bold font-['Poppins',sans-serif] text-purple-600">
                   {product.quantity}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-[11px] text-[#6c757d] font-['Poppins',sans-serif] uppercase tracking-[0.5px]">
-                  Total Revenue
+                  Total Cost
                 </p>
-                <p className="text-[18px] font-bold font-['Poppins',sans-serif] text-emerald-600">
+                <p className="text-[18px] font-bold font-['Poppins',sans-serif] text-blue-600">
                   ${product.totalAmount?.toFixed(2)}
                 </p>
               </div>

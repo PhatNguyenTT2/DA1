@@ -10,3 +10,7 @@ export { default as TestUsers } from "./TestUsers";
 export { default as Customers } from "./Customers";
 export { default as Suppliers } from "./Suppliers";
 export { default as Inventories } from "./Inventories";
+
+// Reports
+export { default as SalesReports } from "./reports/Sales";
+export { default as PurchaseReports } from "./reports/Purchase";
